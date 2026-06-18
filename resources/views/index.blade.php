@@ -97,7 +97,7 @@
                 </a>
                 @endif
 
-                <!-- CARD 2: Estadísticas -->
+                <!-- CARD 2: Seguimineto -->
                 @if(Auth::user()->hasAccess('estadisticas'))
                 <a href="{{ route('cirugias.estadisticas') }}"
                     class="flex rounded-2xl overflow-hidden transform hover:scale-[1.02] transition duration-300 bg-white text-decoration-none h-40">
@@ -107,9 +107,9 @@
                                 class="text-2xl font-bold bg-gradient-to-r from-[#1B7D8F] via-[#2BA8A0] to-[#245360] text-transparent bg-clip-text drop-shadow-md flex items-center gap-2">
                                 <img src="{{ asset('assets/img/logo-san-felipe.png') }}" alt="Hospital San Felipe"
                                     class="w-6 h-6">
-                                Estadísticas
+                                seguimiento
                             </h2>
-                            <p class="text-gray-500 mt-2 text-sm">Informes visuales y análisis de datos médicos.</p>
+                            <p class="text-gray-500 mt-2 text-sm">Seguimiento de insumos y caja quirurjica.</p>
                         </div>
                         <span class="text-blue-600 font-semibold mt-4">Ver más →</span>
                     </div>
@@ -165,8 +165,30 @@
                     </div>
                 </a>
                 @endif
+                 <!-- CARD 5: Estadísticas -->
+                @if(Auth::user()->hasAccess('estadisticas'))
+                <a href="{{ route('cirugias.estadisticas') }}"
+                    class="flex rounded-2xl overflow-hidden transform hover:scale-[1.02] transition duration-300 bg-white text-decoration-none h-40">
+                    <div class="w-1/2 p-6 flex flex-col justify-between">
+                        <div>
+                            <h2
+                                class="text-2xl font-bold bg-gradient-to-r from-[#1B7D8F] via-[#2BA8A0] to-[#245360] text-transparent bg-clip-text drop-shadow-md flex items-center gap-2">
+                                <img src="{{ asset('assets/img/logo-san-felipe.png') }}" alt="Hospital San Felipe"
+                                    class="w-6 h-6">
+                                Estadísticas
+                            </h2>
+                            <p class="text-gray-500 mt-2 text-sm">Informes visuales y análisis de datos médicos.</p>
+                        </div>
+                        <span class="text-blue-600 font-semibold mt-4">Ver más →</span>
+                    </div>
+                    <div class="w-1/2 flex items-center justify-center">
+                        <img src="{{ asset('assets/img/card_estadisticas.jpg') }}" alt="Estadísticas"
+                            class="h-24 w-32 object-cover rounded-lg">
+                    </div>
+                </a>
+                @endif
 
-                <!-- CARD 5: Libro de cirugías -->
+                <!-- CARD 6: Libro de cirugías -->
                 @if(Auth::user()->hasAccess('cirugias'))
                 <a href="{{ route('cirugias.index') }}"
                     class="flex rounded-2xl overflow-hidden transform hover:scale-[1.02] transition duration-300 bg-white h-40 text-decoration-none h-40">
