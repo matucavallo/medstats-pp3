@@ -218,6 +218,10 @@ Route::middleware(['auth', 'roles:insumos'])->group(function () {
     Route::get('/stocks/{stock}', [StockController::class, 'show'])->name('stocks.show');
     Route::put('/stocks/{stock}', [StockController::class, 'update'])->name('stocks.update');
     //Route::delete('/stocks/{}', [StockController::class, 'destroy'])->name('stocks.destroy');
+    // Ruta para obtener los datos al desplegar la fila
+    Route::get('/stocks/{id}/seguimiento', [StockController::class, 'obtenerSeguimiento']);
+    // Ruta para procesar el formulario de mover el insumo
+    Route::post('/stocks/{id}/mover', [StockController::class, 'moverInsumo'])->name('stocks.mover');
 });
 
 //Cirugias
