@@ -286,6 +286,7 @@ Route::middleware(['auth', 'roles:admin'])->group(function () {
 Route::prefix('trazabilidad')->group(function () {
     Route::get('/', [TrazabilidadController::class, 'index'])->name('trazabilidad.index');
     Route::get('/{id}', [TrazabilidadController::class, 'show'])->name('trazabilidad.show');
+    Route::post('/{id}/estado', [TrazabilidadController::class, 'actualizarEstado'])->name('trazabilidad.estado');
 });
 
 // 👇 Debe ir fuera de cualquier grupo con 'auth' o 'roles'
