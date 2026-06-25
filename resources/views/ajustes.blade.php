@@ -136,6 +136,13 @@
                                 'btn' => 'Ir a C.P.',
                                 'access' => 'admin',
                             ],
+                             [
+                                'title' => 'Seguimiento',
+                                'text' => 'Administrar seguimiento de insumos y cajas quirúrgicas.',
+                                'route' => route('trazabilidad.index'),
+                                'btn' => 'Ir a seguimiento',
+                                'access' => 'admin',
+                            ],
                         ];
 
                         // Ordenar alfabéticamente por título

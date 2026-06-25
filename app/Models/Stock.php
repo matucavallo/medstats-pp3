@@ -36,4 +36,20 @@ class Stock extends Model
 {
     return $this->hasMany(Historial_stock::class, 'stock_id');
 }
+//nuevo 
+    public function historiales()
+    {
+        return $this->hasMany(Historial_Stock::class, 'stock_id')
+                    ->orderBy('fecha', 'desc'); // Clave para la línea de tiempo
+    }
+
+    // Relación con el medicamento
+    public function medicamento()
+    {
+        return $this->belongsTo(Medicamento::class, 'medicamento_id');
+    }
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class, 'servicio_id');
+    }
 }
