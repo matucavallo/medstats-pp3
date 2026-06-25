@@ -192,6 +192,41 @@ class StockController extends Controller
         return redirect()->route('stocks.index');
     }
 
+
+    public function obtenerSeguimiento($id) {
+    // Buscamos los movimientos de este insumo específico, ordenados del más nuevo al más viejo
+    $movimientos = TrazabilidadStock::with('user')
+                    ->where('stock_id', $id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+    
+    // Lo devolvemos en formato JSON para que el navegador lo dibuje sin recargar la página
+    return response()->json($movimientos);
+}
+
+public function moverInsumo(Request $request, $id) {
+    $stock = Stock::findOrFail($id);
+    
+    // 1. Registramos la huella en el historial
+    TrazabilidadStock::create([
+        'stock_id' => $stock->id,
+        'user_id' => auth()->id(),
+        'ubicacion_origen' => $stock->ubicacion_actual,
+        'ubicacion_destino' => $request->ubicacion_destino,
+        'estado_material' => $request->estado_material,
+        'observaciones' => $request->observaciones
+    ]);
+
+    // 2. Actualizamos la posición actual en el registro principal
+    $stock->update([
+        'ubicacion_actual' => $request->ubicacion_destino
+    ]);
+
+    // 3. Devolvemos al usuario a la tabla con un mensaje de éxito
+    return back()->with('success', 'El insumo ha sido trasladado correctamente.');
+}
+
+
     public function estadisticas(Request $request)
 {
     $validated = $request->validate([

@@ -63,6 +63,7 @@
                         <th class="px-4 py-2 border">Lote</th>
                         <th class="px-4 py-2 border">Fecha de vencimiento</th>
                         <th class="px-4 py-2 border text-center">Cantidad actual</th>
+                        <th class="px-4 py-2 border">Ubicación actual</th>
                         <th class="px-4 py-2 border text-center">Acciones</th>
                     </tr>
                 </thead>
@@ -86,21 +87,38 @@
                             <td class="px-4 py-2 border text-center">
                                 <span class="{{ $claseColor }}">{{ $item->cantidad_act }}</span>
                             </td>
-                            <td class="px-4 py-2 border text-center space-x-2">
-                                <a href="{{ route('stocks.show', $item) }}" class="btn btn-outline-primary btn-sm me-1">
-                                    Historial
-                                </a>
+                            
+                            <td class="px-4 py-2 border">{{ $item->ubicacion_actual }}</td>
 
-                                <a href="{{ route('stocks.edit', ['stock' => $item->id, 'modo' => 'agregar']) }}" class="btn btn-outline-success btn-sm">
-                                    Agregar
-                                </a>
-                                
-                                <a href="{{ route('stocks.edit', ['stock' => $item->id, 'modo' => 'extraer']) }}" class="btn btn-outline-danger btn-sm">
-                                    Extraer
-                                </a>
+                            <td class="px-4 py-2 border align-middle">
+                                <div class="flex justify-center gap-3">
+                                    
+                                    <div class="flex flex-col gap-1 w-24">
+                                        <a href="{{ route('stocks.edit', ['stock' => $item->id, 'modo' => 'agregar']) }}" class="btn btn-outline-success btn-sm w-full">
+                                            Agregar
+                                        </a>
+                                        <a href="{{ route('stocks.edit', ['stock' => $item->id, 'modo' => 'extraer']) }}" class="btn btn-outline-danger btn-sm w-full">
+                                            Extraer
+                                        </a>
+                                        <a href="{{ route('stocks.show', $item) }}" class="btn btn-outline-primary btn-sm w-full">
+                                            Historial
+                                        </a>
+                                    </div>
+
+                                    <div class="flex flex-col gap-1 w-28 justify-center">
+                                        <button onclick="toggleSeguimiento({{ $item->id }}, this)" class="btn btn-info btn-sm w-full text-white">
+                                            Seguimiento
+                                        </button>
+                                        <button onclick="abrirModalMover({{ $item->id }}, '{{ $item->ubicacion_actual }}')" class="btn btn-warning btn-sm w-full text-white font-medium">
+                                            Mover
+                                        </button>
+                                    </div>
+
+                                </div>
                             </td>
 
                         </tr>
+
                     @empty
                         <tr>
                             <td colspan="5" class="px-4 py-2 text-center text-gray-500">No hay medicamentos en stock.
