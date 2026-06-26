@@ -2,7 +2,6 @@
 
 @section('title', 'Lista de trazabilidad')
 
-
 @section('contenido')
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -21,8 +20,8 @@
 
     
     <div class="table-responsive bg-white rounded shadow-sm p-3">
-        <table class="table table-striped table-hover">
-            <thead class="thead-dark">
+        <table id="tablaCajas" class="table table-hover table-bordered shadow-sm text-center rounded">
+            <thead>
                 <tr>
                     <th>Código</th>
                     <th>Caja Quirúrgica</th>
@@ -78,4 +77,35 @@
         </table>
     </div>
 </div>
+<script>
+    // Esperamos a que la página cargue por completo
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // Verificamos si DataTables está cargado en el sistema
+        if ($.fn.DataTable) {
+            $('#tablaCajas').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ cajas por página",
+                    "zeroRecords": "No se encontraron cajas con ese criterio.",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay cajas disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ cajas totales)",
+                    "search": "Buscar caja:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "order": [[ 0, "asc" ]] // Ordena por la primera columna (Código) por defecto
+            });
+        }
+        
+        // Inicializamos los íconos (si tenés Lucide en esta vista)
+        if(typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
 @endsection

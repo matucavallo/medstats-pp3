@@ -65,6 +65,10 @@
                     <div class="mt-8 text-center w-36">
                         <h4 class="text-base font-bold text-gray-800">{{ $movimiento->estado_registrado }}</h4>
                         <p class="text-sm text-gray-500 mt-1">{{ $movimiento->created_at->format('d/m/Y') }}</p>
+                        <p class="text-xs font-semibold text-gray-700 mt-1">
+                        <i data-lucide="user" class="inline-block w-3 h-3 mr-1 -mt-0.5 opacity-70"></i>
+                         {{ $movimiento->empleado->name ?? 'Sistema' }}
+                        </p>
                         <p class="text-sm text-gray-500">{{ $movimiento->created_at->format('H:i') }}</p>
                         
                         @if($movimiento->empleado)

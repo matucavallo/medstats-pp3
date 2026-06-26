@@ -57,7 +57,7 @@ class TrazabilidadController extends Controller
         // 3. Le creamos su primer punto en la línea de tiempo
         HistorialCaja::create([
             'caja_quirurgicas_id' => $caja->id,
-            'empleado_id' => null,
+            'empleado_id' => auth()->id(),
             'cirugia_id' => null,
             'estado_registrado' => 'Almacenada',
             'observaciones' => 'Alta de nueva caja en el sistema.'
@@ -129,7 +129,7 @@ class TrazabilidadController extends Controller
             // Creamos el nuevo punto en la línea de tiempo
             HistorialCaja::create([
                 'caja_quirurgicas_id' => $caja->id,
-                'empleado_id' => null, 
+                'empleado_id' => auth()->id(), 
                 'cirugia_id' => null,
                 'estado_registrado' => $nuevo_estado,
                 'observaciones' => 'Avance a: ' . $nuevo_estado
