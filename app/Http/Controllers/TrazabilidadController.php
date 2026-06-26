@@ -19,6 +19,53 @@ class TrazabilidadController extends Controller
         $caja = CajaQuirurgica::with(['historiales.empleado', 'historiales.cirugia'])->findOrFail($id);
         return view('trazabilidad.show', compact('caja'));
     }
+    // Mostrar formulario de creación
+    public function create()
+    {
+        // Solo administradores pueden ver el formulario
+        if (auth()->check() && auth()->user()->role != 1) {
+            abort(403, 'Acceso denegado. Solo administradores.');
+        }
+        return view('trazabilidad.create');
+    }
+
+    // Guardar la nueva caja en la base de datos
+    public function store(\Illuminate\Http\Request $request)
+    {
+        // Doble seguridad para guardar
+        if (auth()->check() && auth()->user()->role != 1) {
+            abort(403, 'Acceso denegado.');
+        }
+
+        // 1. Validamos los datos (evita que el programa explote si repiten el código)
+        $request->validate([
+            'codigo' => 'required|unique:caja_quirurgicas,codigo',
+            'nombre' => 'required|string|max:255',
+        ], [
+            'codigo.unique' => 'Ese código de caja ya existe en el sistema.',
+            'codigo.required' => 'El código es obligatorio.',
+            'nombre.required' => 'El nombre de la caja es obligatorio.'
+        ]);
+
+        // 2. Creamos la caja (por defecto nace "Almacenada" y limpia)
+        $caja = CajaQuirurgica::create([
+            'codigo' => $request->codigo,
+            'nombre' => $request->nombre,
+            'estado_actual' => 'Almacenada'
+        ]);
+
+        // 3. Le creamos su primer punto en la línea de tiempo
+        HistorialCaja::create([
+            'caja_quirurgicas_id' => $caja->id,
+            'empleado_id' => null,
+            'cirugia_id' => null,
+            'estado_registrado' => 'Almacenada',
+            'observaciones' => 'Alta de nueva caja en el sistema.'
+        ]);
+
+        // 4. Volvemos al inicio con un mensaje de éxito
+        return redirect()->route('trazabilidad.index')->with('success', 'Caja creada exitosamente.');
+    }
     public function actualizarEstado(\Illuminate\Http\Request $request, $id)
     {
         // 1. Doble validación de seguridad (Solo Admin)

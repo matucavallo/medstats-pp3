@@ -1,17 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Lista de Seguimiento')
+@section('title', 'Lista de trazabilidad')
 
 
 @section('contenido')
 <div class="container mt-4">
-    <h1
+    <div class="d-flex justify-content-between align-items-center mb-4">
+         <h1
                 class="text-2xl font-bold bg-gradient-to-r from-[#1B7D8F] via-[#2BA8A0] to-[#245360] text-transparent  bg-clip-text drop-shadow-md  flex items-center gap-2 px-2">
-                Trazabilidad de Cajas Quirúrgicas</h1>
-                <br>
+                Trazabilidad de Cajas Quirurjicas </h1>
+        
+        @if(auth()->check() && auth()->user()->role == 1)
+            <a href="{{ route('trazabilidad.create') }}" class="btn btn-primary font-weight-bold">
+                <i data-lucide="plus-circle" class="d-inline-block mr-1" style="width: 18px; height: 18px;"></i>
+                Añadir Nueva Caja
+            </a>
+        @endif
+    </div>
 
-        </div>
-    
     
     <div class="table-responsive bg-white rounded shadow-sm p-3">
         <table class="table table-striped table-hover">
