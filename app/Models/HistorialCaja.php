@@ -10,11 +10,12 @@ class HistorialCaja extends Model
 
     public function empleado()
     {
-        return $this->belongsTo(Empleado::class);
+        return $this->belongsTo(\App\Models\User::class, 'empleado_id');
     }
 
     public function cirugia()
     {
         return $this->belongsTo(Cirugia::class);
     }
+    // Relación para traer los datos de la persona que hizo el movimiento
 }

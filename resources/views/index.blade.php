@@ -114,7 +114,7 @@
                         <span class="text-blue-600 font-semibold mt-4">Ver más →</span>
                     </div>
                     <div class="w-1/2 flex items-center justify-center">
-                        <img src="{{ asset('assets/img/card_estadisticas.jpg') }}" alt="Estadísticas"
+                        <img src="{{ asset('assets/img/card-trazabilidad.jpg') }}" alt="Trazabilidad"
                             class="h-24 w-32 object-cover rounded-lg">
                     </div>
                 </a>
