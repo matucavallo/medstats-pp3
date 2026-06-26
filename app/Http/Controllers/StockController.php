@@ -10,7 +10,7 @@ use App\Models\Medicamento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Servicio;
-
+use App\Models\TrazabilidadStock;
 class StockController extends Controller
 {
     public function index(Request $request)
@@ -226,7 +226,36 @@ public function moverInsumo(Request $request, $id) {
     return back()->with('success', 'El insumo ha sido trasladado correctamente.');
 }
 
+public function seguimiento(Stock $stock)
+{
+    $puedeEditar = optional(auth()->user()->perfil)->admin == true;
 
+    return view('stocks.seguimiento', compact('stock', 'puedeEditar'));
+}
+
+public function actualizarSeguimiento(Request $request, Stock $stock)
+{
+    if (!optional(auth()->user()->perfil)->admin) {
+        abort(403, 'No tenés permiso para modificar el seguimiento.');
+    }
+
+    $request->validate([
+        'accion' => 'required|in:avanzar,retroceder',
+    ]);
+
+    $totalFases = count(Stock::FASES);
+
+    if ($request->input('accion') === 'avanzar' && $stock->fase_actual < $totalFases) {
+        $stock->fase_actual += 1;
+    } elseif ($request->input('accion') === 'retroceder' && $stock->fase_actual > 1) {
+        $stock->fase_actual -= 1;
+    }
+
+    $stock->save();
+
+    return redirect()->route('stocks.seguimiento', $stock)
+        ->with('success', 'Estado actualizado correctamente.');
+}
     public function estadisticas(Request $request)
 {
     $validated = $request->validate([

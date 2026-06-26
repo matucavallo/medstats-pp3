@@ -16,7 +16,8 @@ class Stock extends Model
         'cantidad_act',
         'servicio_id',
         'creado_por',
-        'modificado_por'
+        'modificado_por',
+        'fase_actual'
     ];
 
     public function get_medicamento()
@@ -36,4 +37,10 @@ class Stock extends Model
 {
     return $this->hasMany(Historial_stock::class, 'stock_id');
 }
+public const FASES = [
+    1 => ['titulo' => 'Solicitud recibida', 'descripcion' => 'Se registró la solicitud en el sistema.'],
+    2 => ['titulo' => 'En revisión',        'descripcion' => 'Un responsable está validando la información.'],
+    3 => ['titulo' => 'Aprobada',           'descripcion' => 'La solicitud fue aprobada y procesada.'],
+    4 => ['titulo' => 'Finalizada',         'descripcion' => 'El proceso se completó por completo.'],
+];
 }
