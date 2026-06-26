@@ -11,8 +11,9 @@
                 Trazabilidad de Cajas Quirurjicas </h1>
         
         @if(auth()->check() && auth()->user()->role == 1)
-            <a href="{{ route('trazabilidad.create') }}" class="btn btn-primary font-weight-bold">
-                <i data-lucide="plus-circle" class="d-inline-block mr-1" style="width: 18px; height: 18px;"></i>
+         <a href="{{ route('trazabilidad.create') }}"
+                class="inline-block bg-neutral-700 hover:bg-neutral-800 text-white font-medium py-2 px-6 rounded-full shadow-md cursor-pointer transition duration-300"
+                style="text-decoration: none;">
                 Añadir Nueva Caja
             </a>
         @endif
@@ -47,11 +48,26 @@
                         </span>
                     </td>
                     <td>{{ $caja->updated_at->format('d/m/Y H:i') }}</td>
-                    <td>
-                        <a href="{{ route('trazabilidad.show', $caja->id) }}" class="btn btn-sm btn-info text-white">
-                            Ver Línea de Tiempo
-                        </a>
-                    </td>
+                    <td class="align-middle">
+    <div class="d-flex align-items-center" style="gap: 8px;">
+        
+        <a href="{{ route('trazabilidad.show', $caja->id) }}" class="btn btn-sm text-white" style="background-color: #17a2b8; border-color: #17a2b8;">
+            Ver Línea de Tiempo
+        </a>
+
+        @if(auth()->check() && auth()->user()->role == 1)
+            <form action="{{ route('trazabilidad.destroy', $caja->id) }}" method="POST" class="m-0" onsubmit="return confirm('⚠️ ¡ATENCIÓN! ¿Estás seguro de que querés borrar la caja {{ $caja->codigo }}? Se eliminará TODO su historial y no se puede recuperar.');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center" title="Eliminar Caja" style="height: 31px; width: 32px; padding: 0;">
+                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                </button>
+            </form>
+        @endif
+
+    </div>
+</td>
+                    
                 </tr>
                 @empty
                 <tr>

@@ -288,8 +288,10 @@ Route::prefix('trazabilidad')->group(function () {
     
     // NUEVAS RUTAS PARA CREAR (¡Antes del {id}!)
     Route::get('/crear', [TrazabilidadController::class, 'create'])->name('trazabilidad.create');
-    Route::post('/guardar', [TrazabilidadController::class, 'store'])->name('trazabilidad.store');
+    // NUEVA RUTA PARA ELIMINAR (Debe usar el método DELETE por convención)
     
+    Route::post('/guardar', [TrazabilidadController::class, 'store'])->name('trazabilidad.store');
+    Route::delete('/{id}/eliminar', [TrazabilidadController::class, 'destroy'])->name('trazabilidad.destroy');
     Route::get('/{id}', [TrazabilidadController::class, 'show'])->name('trazabilidad.show');
     Route::post('/{id}/estado', [TrazabilidadController::class, 'actualizarEstado'])->name('trazabilidad.estado');
 });

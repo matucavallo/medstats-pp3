@@ -66,10 +66,11 @@ class TrazabilidadController extends Controller
         // 4. Volvemos al inicio con un mensaje de éxito
         return redirect()->route('trazabilidad.index')->with('success', 'Caja creada exitosamente.');
     }
-    public function actualizarEstado(\Illuminate\Http\Request $request, $id)
+
+ public function actualizarEstado(\Illuminate\Http\Request $request, $id)
     {
         // 1. Doble validación de seguridad (Solo Admin)
-        if (auth()->user()->role != 1) {
+        if (auth()->check() && auth()->user()->role != 1) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
 
@@ -78,17 +79,40 @@ class TrazabilidadController extends Controller
         // Atrapamos qué botón apretó el usuario (por defecto asume avanzar)
         $accion = $request->input('accion', 'avanzar'); 
 
-        // 2. Nuestra "Máquina de Estados" doble
+        // ==========================================
+        // LÓGICA DE RETROCEDER (BORRAR EL ÚLTIMO)
+        // ==========================================
         if ($accion == 'retroceder') {
-            $flujo_inverso = [
-                'Esterilizada' => 'Lavado',
-                'Almacenada'   => 'Esterilizada',
-                'En Uso'       => 'Almacenada',
-                'Lavado'       => 'En Uso', // (Por si retroceden desde Lavado)
-            ];
-            $nuevo_estado = $flujo_inverso[$caja->estado_actual] ?? 'Lavado';
-            $observacion = 'Corrección: Retroceso manual a ' . $nuevo_estado;
-        } else {
+            
+            // Consultamos directamente a la BD cuántos pasos hay en total
+            $cantidadPasos = HistorialCaja::where('caja_quirurgicas_id', $caja->id)->count();
+
+            if ($cantidadPasos > 1) {
+                // Buscamos el último registro real y lo borramos
+                $ultimoMovimiento = HistorialCaja::where('caja_quirurgicas_id', $caja->id)
+                                                 ->latest()
+                                                 ->first();
+                $ultimoMovimiento->delete();
+
+                // Ahora buscamos cuál quedó como último en la lista
+                $nuevoUltimo = HistorialCaja::where('caja_quirurgicas_id', $caja->id)
+                                            ->latest()
+                                            ->first();
+
+                // Actualizamos la caja para que regrese a ese estado anterior
+                $caja->update([
+                    'estado_actual' => $nuevoUltimo->estado_registrado
+                ]);
+
+                return redirect()->back()->with('success', 'Paso deshecho. La caja volvió a estado: ' . $nuevoUltimo->estado_registrado);
+            } else {
+                return redirect()->back()->with('error', 'No se puede retroceder más. Este es el estado inicial de la caja.');
+            }
+        } 
+        // ==========================================
+        // LÓGICA DE AVANZAR NORMAL
+        // ==========================================
+        else {
             $flujo_normal = [
                 'Lavado'       => 'Esterilizada',
                 'Esterilizada' => 'Almacenada',
@@ -96,23 +120,45 @@ class TrazabilidadController extends Controller
                 'En Uso'       => 'Lavado', 
             ];
             $nuevo_estado = $flujo_normal[$caja->estado_actual] ?? 'Lavado';
-            $observacion = 'Avance rápido a: ' . $nuevo_estado;
+
+            // Actualizamos la caja
+            $caja->update([
+                'estado_actual' => $nuevo_estado
+            ]);
+
+            // Creamos el nuevo punto en la línea de tiempo
+            HistorialCaja::create([
+                'caja_quirurgicas_id' => $caja->id,
+                'empleado_id' => null, 
+                'cirugia_id' => null,
+                'estado_registrado' => $nuevo_estado,
+                'observaciones' => 'Avance a: ' . $nuevo_estado
+            ]);
+
+            return redirect()->back()->with('success', '¡Estado avanzado a ' . $nuevo_estado . '!');
+        }
+    }
+    // Eliminar una caja y todo su historial
+    public function destroy($id)
+    {
+        // 1. Validamos que solo el Administrador (rol 1) pueda borrar
+        if (auth()->check() && auth()->user()->role != 1) {
+            abort(403, 'Acceso denegado. Solo administradores.');
         }
 
-        // 3. Actualizamos la caja
-        $caja->update([
-            'estado_actual' => $nuevo_estado
-        ]);
+        // 2. Buscamos la caja
+        $caja = CajaQuirurgica::findOrFail($id);
 
-        // 4. Registramos en el historial (agregando la "s" que arreglamos antes)
-        HistorialCaja::create([
-            'caja_quirurgicas_id' => $caja->id,
-            'empleado_id' => null, 
-            'cirugia_id' => null,
-            'estado_registrado' => $nuevo_estado,
-            'observaciones' => $observacion
-        ]);
+        // 3. Borramos TODO el historial asociado a esa caja primero
+        // Usamos el nombre de la columna que arreglamos antes con la "s"
+        \App\Models\HistorialCaja::where('caja_quirurgicas_id', $caja->id)->delete();
 
-        return redirect()->back()->with('success', '¡Estado actualizado a ' . $nuevo_estado . '!');
+        // 4. Ahora sí, borramos la caja física
+        $caja->delete();
+
+        // 5. Redirigimos al listado principal con un mensaje de éxito
+        return redirect()->route('trazabilidad.index')->with('success', '¡Caja y su historial eliminados correctamente!');
     }
-}
+    }
+
+    

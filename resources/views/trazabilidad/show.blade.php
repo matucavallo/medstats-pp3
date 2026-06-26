@@ -41,17 +41,25 @@
                     
                     <div class="absolute -top-24 flex flex-col items-center">
                         <div class="p-4 bg-white rounded-2xl border-2 border-gray-100 shadow-md">
-                            @if($movimiento->estado_registrado == 'Esterilizada')
-                                <i data-lucide="sparkles" class="w-12 h-12 text-green-500"></i>
+                            @if($movimiento->estado_registrado == 'Lavado')
+                                <i data-lucide="droplets" class="w-12 h-12 text-teal-600"></i>
+                            
+                            @elseif($movimiento->estado_registrado == 'Esterilizada')
+                                <i data-lucide="shield-check" class="w-12 h-12 text-emerald-600"></i>
+                            
+                            @elseif($movimiento->estado_registrado == 'Almacenada')
+                                <i data-lucide="archive" class="w-12 h-12 text-slate-500"></i>
+                            
                             @elseif($movimiento->estado_registrado == 'En Uso')
-                                <i data-lucide="activity" class="w-12 h-12 text-red-500"></i>
+                                <i data-lucide="scissors" class="w-12 h-12 text-rose-500"></i>
+                            
                             @else
-                                <i data-lucide="refresh-cw" class="w-12 h-12 text-blue-500"></i>
+                                <i data-lucide="box" class="w-12 h-12 text-gray-400"></i>
                             @endif
                         </div>
                     </div>
 
-                    <div class="w-10 h-10 bg-blue-500 border-4 border-white ring-4 ring-blue-100 rounded-full flex items-center justify-center z-10">
+                    <div class="w-10 h-10 bg-[#0d7f8c] border-4 border-white ring-4 ring-[#eef5f6] rounded-full flex items-center justify-center z-10">
                     </div>
 
                     <div class="mt-8 text-center w-36">
@@ -72,7 +80,9 @@
                 </div>
 
                 @if(!$loop->last)
-                    <div class="flex-auto border-t-4 border-blue-400 -mt-24"></div>
+                
+                 <div class="flex-auto border-t-4 border-[#0d7f8c] opacity-80 -mt-24"></div>
+
                 @endif
             @endforeach
 
@@ -90,35 +100,29 @@
                     $estadoAnterior = $flujo_inverso[$caja->estado_actual] ?? 'Lavado';
                 @endphp
 
-                <div class="flex-auto border-t-4 border-dashed border-gray-300 -mt-24 min-w-[50px]"></div>
-                
-                <div class="relative flex flex-col items-center flex-1 min-w-[150px]">
+                <div class="relative flex flex-col items-center min-w-[100px] ml-4">
                     
-                    <div class="absolute -top-24 flex gap-3 items-center">
+                    <div class="absolute -top-20 flex gap-2 items-center">
                         
                         <form action="{{ route('trazabilidad.estado', $caja->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="accion" value="retroceder">
-                            <button type="submit" class="p-3 bg-red-50 rounded-2xl border-2 border-dashed border-red-400 shadow-sm hover:shadow-md hover:bg-red-100 hover:border-red-500 transition-all group flex items-center justify-center cursor-pointer" title="Deshacer a {{ $estadoAnterior }}">
-                                <i data-lucide="rotate-ccw" class="w-8 h-8 text-red-500 group-hover:-rotate-45 transition-transform"></i>
+                            <button type="submit" class="p-2 bg-red-50 rounded-lg border border-red-200 shadow-sm hover:shadow hover:bg-red-100 hover:border-red-300 transition-all group flex items-center justify-center cursor-pointer" title="Deshacer a {{ $estadoAnterior }}">
+                                <i data-lucide="rotate-ccw" class="w-5 h-5 text-red-500 group-hover:-rotate-45 transition-transform"></i>
                             </button>
                         </form>
 
                         <form action="{{ route('trazabilidad.estado', $caja->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="accion" value="avanzar">
-                            <button type="submit" class="p-4 bg-blue-50 rounded-2xl border-2 border-dashed border-blue-400 shadow-sm hover:shadow-md hover:bg-blue-100 hover:border-blue-500 transition-all group flex items-center justify-center cursor-pointer" title="Avanzar a {{ $siguienteEstado }}">
-                                <i data-lucide="plus" class="w-12 h-12 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                            <button type="submit" class="p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm hover:shadow hover:bg-blue-100 hover:border-blue-300 transition-all group flex items-center justify-center cursor-pointer" title="Avanzar a {{ $siguienteEstado }}">
+                                <i data-lucide="plus" class="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform"></i>
                             </button>
                         </form>
                     </div>
 
-                    <div class="w-10 h-10 bg-gray-50 border-4 border-dashed border-gray-300 rounded-full flex items-center justify-center z-10">
-                    </div>
-
-                    <div class="mt-8 text-center w-full">
-                        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Acción rápida:</h4>
-                        <p class="text-xs text-gray-400 mt-1">Avanzar o deshacer</p>
+                    <div class="mt-10 text-center w-full">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acción Manual</h4>
                     </div>
                 </div>
             @endif
