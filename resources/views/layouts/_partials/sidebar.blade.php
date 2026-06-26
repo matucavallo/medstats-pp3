@@ -209,6 +209,7 @@
         @php
             $menuItems = [
                 ['route' => 'stocks.index', 'title' => 'Insumos', 'icon' => 'package', 'access' => 'insumos'],
+                ['route' => 'trazabilidad.index', 'title' => 'Trazabilidad', 'icon' => 'git-commit', 'access' => 'insumos'],
                 ['route' => 'cirugias.estadisticas', 'title' => 'Estadísticas', 'icon' => 'bar-chart-2', 'access' => 'estadisticas'],
                 ['route' => 'pacientes.index', 'title' => 'Pacientes', 'icon' => 'users', 'access' => 'pacientes'],
                 ['route' => 'camas.index', 'title' => 'Camas', 'icon' => 'bed', 'access' => 'camas'],

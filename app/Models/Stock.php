@@ -43,4 +43,20 @@ public const FASES = [
     3 => ['titulo' => 'Aprobada',           'descripcion' => 'La solicitud fue aprobada y procesada.'],
     4 => ['titulo' => 'Finalizada',         'descripcion' => 'El proceso se completó por completo.'],
 ];
+//nuevo 
+    public function historiales()
+    {
+        return $this->hasMany(Historial_Stock::class, 'stock_id')
+                    ->orderBy('fecha', 'desc'); // Clave para la línea de tiempo
+    }
+
+    // Relación con el medicamento
+    public function medicamento()
+    {
+        return $this->belongsTo(Medicamento::class, 'medicamento_id');
+    }
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class, 'servicio_id');
+    }
 }

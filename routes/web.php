@@ -21,6 +21,7 @@ use App\Http\Controllers\PersonaController;
 use App\Http\Controllers\EspecialidadController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\TrazabilidadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', function () {
@@ -281,6 +282,20 @@ Route::middleware(['auth', 'roles:admin'])->group(function () {
     Route::get('/usuarios/{usuario}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('usuarios.edit');
     Route::put('/usuarios/{usuario}', [App\Http\Controllers\UserController::class, 'update'])->name('usuarios.update');
     Route::delete('/usuarios/{usuario}', [App\Http\Controllers\UserController::class, 'destroy'])->name('usuarios.destroy');
+});
+
+//Trazabilidad
+Route::prefix('trazabilidad')->group(function () {
+    Route::get('/', [TrazabilidadController::class, 'index'])->name('trazabilidad.index');
+    
+    // NUEVAS RUTAS PARA CREAR (¡Antes del {id}!)
+    Route::get('/crear', [TrazabilidadController::class, 'create'])->name('trazabilidad.create');
+    // NUEVA RUTA PARA ELIMINAR (Debe usar el método DELETE por convención)
+    
+    Route::post('/guardar', [TrazabilidadController::class, 'store'])->name('trazabilidad.store');
+    Route::delete('/{id}/eliminar', [TrazabilidadController::class, 'destroy'])->name('trazabilidad.destroy');
+    Route::get('/{id}', [TrazabilidadController::class, 'show'])->name('trazabilidad.show');
+    Route::post('/{id}/estado', [TrazabilidadController::class, 'actualizarEstado'])->name('trazabilidad.estado');
 });
 
 // 👇 Debe ir fuera de cualquier grupo con 'auth' o 'roles'

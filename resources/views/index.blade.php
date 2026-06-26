@@ -99,7 +99,7 @@
 
                 <!-- CARD 2: Seguimineto -->
                 @if(Auth::user()->hasAccess('estadisticas'))
-                <a href="{{ route('cirugias.estadisticas') }}"
+                <a href="{{ route('trazabilidad.index') }}"
                     class="flex rounded-2xl overflow-hidden transform hover:scale-[1.02] transition duration-300 bg-white text-decoration-none h-40">
                     <div class="w-1/2 p-6 flex flex-col justify-between">
                         <div>
@@ -107,14 +107,14 @@
                                 class="text-2xl font-bold bg-gradient-to-r from-[#1B7D8F] via-[#2BA8A0] to-[#245360] text-transparent bg-clip-text drop-shadow-md flex items-center gap-2">
                                 <img src="{{ asset('assets/img/logo-san-felipe.png') }}" alt="Hospital San Felipe"
                                     class="w-6 h-6">
-                                seguimiento
+                                Trazabilidad
                             </h2>
-                            <p class="text-gray-500 mt-2 text-sm">Seguimiento de insumos y caja quirurjica.</p>
+                            <p class="text-gray-500 mt-2 text-sm">Trazabilidad y seguimiento de cajas quirurjicas.</p>
                         </div>
                         <span class="text-blue-600 font-semibold mt-4">Ver más →</span>
                     </div>
                     <div class="w-1/2 flex items-center justify-center">
-                        <img src="{{ asset('assets/img/card_estadisticas.jpg') }}" alt="Estadísticas"
+                        <img src="{{ asset('assets/img/card-trazabilidad.jpg') }}" alt="Trazabilidad"
                             class="h-24 w-32 object-cover rounded-lg">
                     </div>
                 </a>

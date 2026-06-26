@@ -38,6 +38,20 @@ class Historial_stock extends Model
     {
         return $this->belongsTo(User::class, 'creado_por', 'id');
     }
+
+    protected $table = 'historial_stocks';
+
+    // Quién hizo el movimiento
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class);
+    }
+
+    // A qué paciente se le administró (puede ser null)
+    public function paciente()
+    {
+        return $this->belongsTo(Paciente::class);
+    }
     /*protected static function booted()
     {   
         //Valida que el stock exista y la cantidad no baje de cero
