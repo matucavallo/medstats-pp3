@@ -106,13 +106,13 @@
                                     </div>
 
                                     <div class="flex flex-col gap-1 w-28 justify-center">
-                                        <button onclick="toggleSeguimiento({{ $item->id }}, this)" class="btn btn-info btn-sm w-full text-white">
-                                            Seguimiento
-                                        </button>
-                                        <button onclick="abrirModalMover({{ $item->id }}, '{{ $item->ubicacion_actual }}')" class="btn btn-warning btn-sm w-full text-white font-medium">
-                                            Mover
-                                        </button>
-                                    </div>
+    <a href="{{ route('stocks.seguimiento', $item->id) }}" class="btn btn-info btn-sm w-full text-white">
+        Seguimiento
+    </a>
+    <button onclick="abrirModalMover({{ $item->id }}, '{{ $item->ubicacion_actual }}')" class="btn btn-warning btn-sm w-full text-white font-medium">
+        Mover
+    </button>
+</div>
 
                                 </div>
                             </td>

@@ -217,6 +217,8 @@ Route::middleware(['auth', 'roles:insumos'])->group(function () {
     Route::post('/stocks', [StockController::class, 'store'])->name('stocks.store');
     Route::get('/stocks/{stock}/edit', [StockController::class, 'edit'])->name('stocks.edit');
     Route::get('/stocks/{stock}', [StockController::class, 'show'])->name('stocks.show');
+    Route::get('/stocks/{stock}/seguimiento', [StockController::class, 'seguimiento'])->name('stocks.seguimiento');
+    Route::post('/stocks/{stock}/seguimiento', [StockController::class, 'actualizarSeguimiento'])->name('stocks.seguimiento.update');
     Route::put('/stocks/{stock}', [StockController::class, 'update'])->name('stocks.update');
     //Route::delete('/stocks/{}', [StockController::class, 'destroy'])->name('stocks.destroy');
     // Ruta para obtener los datos al desplegar la fila
