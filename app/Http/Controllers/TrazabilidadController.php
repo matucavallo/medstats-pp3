@@ -7,9 +7,19 @@ use App\Models\HistorialCaja;
 
 class TrazabilidadController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $cajas = CajaQuirurgica::all();
+        // 1. Iniciamos la consulta base
+        $query = CajaQuirurgica::query();
+
+        // 2. Si el usuario seleccionó un estado en el filtro, lo atrapamos y filtramos
+        if ($request->filled('estado')) {
+            $query->where('estado_actual', $request->estado);
+        }
+
+        // 3. Traemos los resultados paginados (10 por página como tenías en tu diseño)
+        $cajas = $query->paginate(10); 
+
         return view('trazabilidad.index', compact('cajas'));
     }
 
