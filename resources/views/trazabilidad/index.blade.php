@@ -101,6 +101,7 @@
         $.fn.dataTable.ext.errMode = 'none'; 
 
         $('#tablaCajas').DataTable({
+            "stateSave": true,
             "language": {
                 "lengthMenu": "Mostrar _MENU_ cajas por página",
                 "zeroRecords": "No se encontraron cajas con ese criterio.",

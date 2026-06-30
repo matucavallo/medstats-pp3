@@ -18,8 +18,7 @@ class TrazabilidadController extends Controller
         }
 
         // 3. Traemos los resultados paginados (10 por página como tenías en tu diseño)
-        $cajas = $query->paginate(10); 
-
+        $cajas = $query->get();
         return view('trazabilidad.index', compact('cajas'));
     }
 
