@@ -44,6 +44,13 @@
                             <label for="nombre" class="font-weight-bold text-secondary">Nombre descriptivo</label>
                             <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej: Caja de Traumatología Menor" value="{{ old('nombre') }}" required>
                         </div>
+                        <div class="mb-4">
+                            <label for="descripcion" class="form-label text-secondary font-weight-bold" style="font-size: 0.95rem;">
+                             Descripción y Contenido de la Caja
+                            </label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Ej: 2 pinzas de .., 1 tijera, 4 pinzas..."></textarea>
+                            <small class="text-muted" style="font-size: 0.8rem;">Detalle manual de los instrumentos o instrumental específico que contiene.</small>
+                        </div>
 
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('trazabilidad.index') }}" class="btn btn-light mr-2">Cancelar</a>

@@ -9,23 +9,30 @@ class TrazabilidadController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        // 1. Iniciamos la consulta base
-        $query = CajaQuirurgica::query();
+        // Atrapamos el filtro. Si no hay ninguno, por defecto es 'Todas'
+        $filtro = $request->input('estado', 'Todas'); 
 
-        // 2. Si el usuario seleccionó un estado en el filtro, lo atrapamos y filtramos
-        if ($request->filled('estado')) {
-            $query->where('estado_actual', $request->estado);
+        if ($filtro == 'En Desuso') {
+            // Trae SOLO las eliminadas (Soft Deletes)
+            $cajas = CajaQuirurgica::onlyTrashed()->get(); 
+            
+        } elseif ($filtro != 'Todas') {
+            // Trae las cajas activas que coincidan exactamente con el estado elegido
+            $cajas = CajaQuirurgica::where('estado_actual', $filtro)->get();
+            
+        } else {
+            // Trae TODAS las cajas activas
+            $cajas = CajaQuirurgica::all(); 
         }
 
-        // 3. Traemos los resultados paginados (10 por página como tenías en tu diseño)
-        $cajas = $query->get();
-        return view('trazabilidad.index', compact('cajas'));
+        return view('trazabilidad.index', compact('cajas', 'filtro'));
     }
+    
 
     public function show($id)
     {
         // Traemos la caja con su historial, el empleado que registró y la cirugía vinculada
-        $caja = CajaQuirurgica::with(['historiales.empleado', 'historiales.cirugia'])->findOrFail($id);
+        $caja = CajaQuirurgica::withTrashed()->findOrFail($id);
         return view('trazabilidad.show', compact('caja'));
     }
     // Mostrar formulario de creación
@@ -50,6 +57,7 @@ class TrazabilidadController extends Controller
         $request->validate([
             'codigo' => 'required|unique:caja_quirurgicas,codigo',
             'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string'
         ], [
             'codigo.unique' => 'Ese código de caja ya existe en el sistema.',
             'codigo.required' => 'El código es obligatorio.',
@@ -60,6 +68,7 @@ class TrazabilidadController extends Controller
         $caja = CajaQuirurgica::create([
             'codigo' => $request->codigo,
             'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
             'estado_actual' => 'Almacenada'
         ]);
 
@@ -160,13 +169,13 @@ class TrazabilidadController extends Controller
 
         // 3. Borramos TODO el historial asociado a esa caja primero
         // Usamos el nombre de la columna que arreglamos antes con la "s"
-        \App\Models\HistorialCaja::where('caja_quirurgicas_id', $caja->id)->delete();
+        //\App\Models\HistorialCaja::where('caja_quirurgicas_id', $caja->id)->delete();
 
         // 4. Ahora sí, borramos la caja física
         $caja->delete();
 
         // 5. Redirigimos al listado principal con un mensaje de éxito
-        return redirect()->route('trazabilidad.index')->with('success', '¡Caja y su historial eliminados correctamente!');
+       return redirect()->back()->with('success', 'Caja enviada a desuso correctamente.');
     }
     }
 
