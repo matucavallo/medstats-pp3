@@ -15,37 +15,37 @@
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         
         <!-- Total -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-gray-600">
+        <div class="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center border border-gray-100">
             <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Total de Cajas</div>
             <div class="text-3xl font-bold text-gray-800">{{ $totalCajas }}</div>
         </div>
 
         <!-- Almacenadas -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-[#1B7D8F]">
+        <div class="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center border border-gray-100">
             <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Almacenadas</div>
             <div class="text-3xl font-bold text-[#1B7D8F]">{{ $cajasAlmacenadas }}</div>
         </div>
 
         <!-- En Uso -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-red-500">
+        <div class="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center border border-gray-100">
             <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">En Uso</div>
             <div class="text-3xl font-bold text-red-500">{{ $cajasEnUso }}</div>
         </div>
 
         <!-- Lavado -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-blue-500">
+        <div class="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center border border-gray-100">
             <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">En Lavado</div>
             <div class="text-3xl font-bold text-blue-500">{{ $cajasLavado }}</div>
         </div>
 
         <!-- Esterilizadas (¡Acá está!) -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-green-500">
+        <div class="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center border border-gray-100">
             <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Esterilizadas</div>
             <div class="text-3xl font-bold text-green-500">{{ $cajasEsterilizadas }}</div>
         </div>
 
         <!-- En Desuso -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-orange-500">
+        <div class="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center border border-gray-100">
             <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">En Desuso</div>
             <div class="text-3xl font-bold text-orange-500">{{ $cajasEnDesuso }}</div>
         </div>
@@ -60,11 +60,12 @@
             <table id="tabla-historial" class="table table-hover w-full text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Fecha y Hora</th>
-                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Caja Quirúrgica</th>
-                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Estado</th>
-                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Registrado por</th>
-                        <th class="py-3 px-4 text-left font-semibold text-gray-600">Observaciones</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-100">Fecha y Hora</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-100">Caja Quirúrgica</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-100">Estado</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-100">Registrado por</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-100">Observaciones</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-100">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -94,15 +95,28 @@
                             </span>
                         </td>
                         
-                        <!-- Empleado (preparado por si usan el campo name o nombre) -->
+                                                <!-- Empleado (Defensa contra registros nulos usando Nullsafe operator) -->
                         <td class="py-3 px-4 align-middle">
-                            {{ $movimiento->empleado->name ?? ($movimiento->empleado->nombre . ' ' . $movimiento->empleado->apellido) ?? 'Sistema' }}
+                            {{ $movimiento->empleado?->name ?? ($movimiento->empleado?->nombre . ' ' . $movimiento->empleado?->apellido) ?? 'Usuario Desconocido' }}
                         </td>
-                        
+                                                
                         <!-- Observaciones -->
                         <td class="py-3 px-4 align-middle text-gray-600">
                             {{ $movimiento->observaciones ?? '-' }}
                         </td>
+
+                        <td class="py-3 px-4 align-middle text-center">
+                            {{-- Verificamos primero si existe el ID --}}
+                            @if($movimiento->caja_quirurgica_id)
+                                <a href="{{ route('cajas.historial', ['id' => $movimiento->caja_quirurgica_id]) }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm">
+                                    <i class="fas fa-history mr-1"></i> Ver Caja
+                                </a>
+                            @else
+                                {{-- Opcional: mostrar un indicador visual si falta el dato --}}
+                                <span class="text-xs text-gray-400">Sin ID</span>
+                            @endif
+                        </td>
+
                     </tr>
                     @endforeach
                 </tbody>

@@ -221,6 +221,20 @@ class TrazabilidadController extends Controller
             'historial'
         ));
     }
+
+
+    // app/Http/Controllers/TrazabilidadController.php
+
+        public function historialCaja($id)
+        {
+            // 1. Buscamos la caja o los movimientos filtrados por ese ID
+            // Ejemplo lógico (ajusta según tus modelos):
+            $historial = HistorialCaja::where('caja_quirurgica_id', $id)->get();
+            
+            // 2. Retornamos la vista correspondiente
+            return view('trazabilidad.historial_caja', compact('historial'));
+        }
+
     }
 
     

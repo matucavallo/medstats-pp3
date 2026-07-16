@@ -297,7 +297,10 @@ Route::prefix('trazabilidad')->group(function () {
     Route::delete('/{id}/eliminar', [TrazabilidadController::class, 'destroy'])->name('trazabilidad.destroy');
     Route::get('/{id}', [TrazabilidadController::class, 'show'])->name('trazabilidad.show');
     Route::post('/{id}/estado', [TrazabilidadController::class, 'actualizarEstado'])->name('trazabilidad.estado');
+    Route::get('/cajas/{id}/historial', [TrazabilidadController::class, 'historialCaja'])->name('cajas.historial');
 });
+
+
 
 // 👇 Debe ir fuera de cualquier grupo con 'auth' o 'roles'
 require __DIR__ . '/auth.php';
