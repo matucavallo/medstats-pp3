@@ -58,6 +58,7 @@ Route::view('/ajustes', 'ajustes')->middleware('auth')->name('ajustes');
 Route::middleware(['auth', 'roles:estadisticas'])->group(function () {
     Route::get('/cirugias/estadisticas', [CirugiaController::class, 'estadisticas'])->name('cirugias.estadisticas');
     Route::get('/stocks/estadisticasstock', [StockController::class, 'estadisticas'])->name('stocks.estadisticasstock');
+    Route::get('/trazabilidad/estadisticas', [App\Http\Controllers\TrazabilidadController::class, 'estadisticas'])->name('trazabilidad.estadisticas');
 });
 
 // Route::get('/prueba', function (){
