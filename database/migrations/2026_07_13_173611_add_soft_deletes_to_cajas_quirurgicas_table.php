@@ -6,13 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up()
 {
     Schema::table('caja_quirurgicas', function (Blueprint $table) {
-        $table->softDeletes(); // Esto crea la columna deleted_at
+        $table->softDeletes(); 
     });
 }
 

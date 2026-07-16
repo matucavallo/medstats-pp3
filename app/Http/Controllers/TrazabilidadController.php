@@ -9,23 +9,37 @@ class TrazabilidadController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        // Atrapamos el filtro. Si no hay ninguno, por defecto es 'Todas'
-        $filtro = $request->input('estado', 'Todas'); 
+        
+        $filtroEstado = $request->input('estado', 'Todas');
+        $filtroNombre = $request->input('nombre_caja', 'Todas');
 
-        if ($filtro == 'En Desuso') {
-            // Trae SOLO las eliminadas (Soft Deletes)
-            $cajas = CajaQuirurgica::onlyTrashed()->get(); 
-            
-        } elseif ($filtro != 'Todas') {
-            // Trae las cajas activas que coincidan exactamente con el estado elegido
-            $cajas = CajaQuirurgica::where('estado_actual', $filtro)->get();
-            
-        } else {
-            // Trae TODAS las cajas activas
-            $cajas = CajaQuirurgica::all(); 
+        
+        $nombresCajas = CajaQuirurgica::withTrashed()
+                            ->select('nombre')
+                            ->distinct()
+                            ->orderBy('nombre')
+                            ->pluck('nombre');
+
+        // Empezamos a armar la consulta a la base de datos
+        $query = CajaQuirurgica::query();
+
+        // 4. Aplicamos el filtro de ESTADO (si eligió uno específico)
+        if ($filtroEstado == 'En Desuso') {
+            $query->onlyTrashed(); // Solo las borradas
+        } elseif ($filtroEstado != 'Todas') {
+            $query->where('estado_actual', $filtroEstado); // Solo las del estado elegido
         }
 
-        return view('trazabilidad.index', compact('cajas', 'filtro'));
+        // 5. Aplicamos el filtro de NOMBRE (si eligió uno específico)
+        if ($filtroNombre != 'Todas') {
+            $query->where('nombre', $filtroNombre);
+        }
+
+        // 6. Ejecutamos la búsqueda final y traemos los resultados
+        $cajas = $query->get();
+
+        // Le mandamos todo a la vista
+        return view('trazabilidad.index', compact('cajas', 'filtroEstado', 'filtroNombre', 'nombresCajas'));
     }
     
 
