@@ -43,7 +43,7 @@
     </div>
 </form>
 
-            @if(auth()->check() && auth()->user()->role == 1)
+            @if(auth()->check() && auth()->user()->hasAccess(['admin', 'esterilizacion']))
                 <a href="{{ route('trazabilidad.create') }}"
                     class="inline-block bg-neutral-700 hover:bg-neutral-800 text-white font-medium py-2 px-6 rounded-full shadow-md cursor-pointer transition duration-300 text-nowrap"
                     style="text-decoration: none;">
@@ -108,7 +108,7 @@
                         Ver Línea de Tiempo
                     </a>
 
-                    @if(auth()->check() && auth()->user()->role == 1)
+                    @if(auth()->check() && auth()->user()->hasAccess(['admin', 'esterilizacion']))
                         <form action="{{ route('trazabilidad.destroy', $caja->id) }}" method="POST" class="m-0" onsubmit="return confirm('⚠️ ¿Estás seguro de enviar la caja a desuso?');">
                             @csrf
                             @method('DELETE')

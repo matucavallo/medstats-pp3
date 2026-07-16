@@ -16,6 +16,7 @@ class UsuarioPerfil extends Model
         'estadisticas',
         'pacientes',
         'camas',
-        'cirugias'
+        'cirugias',
+        'esterilizacion'
     ];
 }

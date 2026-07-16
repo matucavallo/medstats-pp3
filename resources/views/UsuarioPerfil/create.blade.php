@@ -104,7 +104,17 @@
                         <div><small class="text-danger">{{ $message }}</small></div>
                     @enderror
                 </div>
-
+                 <!-- Esterilización -->
+<div class="switches-group-compact">
+    <span class="switch-label">Esterilización</span>
+    <label class="switch">
+        <input type="checkbox" name="esterilizacion" id="esterilizacion" {{ old('esterilizacion') ? 'checked' : '' }}>
+        <span class="slider round"></span>
+    </label>
+    @error('esterilizacion')
+        <div><small class="text-danger">{{ $message }}</small></div>
+    @enderror
+</div>
                 {{-- Botones --}}
                 <div class="flex justify-between pt-4">
                     <a href="{{ route('UsuarioPerfil.index') }}"

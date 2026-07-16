@@ -63,7 +63,12 @@ class UsuarioPerfilController extends Controller
         } else {
             $perfil->cirugias = false;
         }
-
+        //esterilizacion
+if ($request->input('esterilizacion') != null) {
+    $perfil->esterilizacion = true;
+} else {
+    $perfil->esterilizacion = false;
+}
         $perfil->save();
 
         return redirect()->route('UsuarioPerfil.index')->with('success', 'Perfil creado correctamente.');
@@ -123,7 +128,13 @@ class UsuarioPerfilController extends Controller
         } else {
             $perfil->cirugias = false;
         }
-        
+        //esterilizacion
+if ($request->input('esterilizacion') != null) {
+    $perfil->esterilizacion = true;
+} else {
+    $perfil->esterilizacion = false;
+}
+
         $perfil->save();
 
         return redirect()->route('UsuarioPerfil.index')->with('success', 'Perfil actualizado correctamente.');

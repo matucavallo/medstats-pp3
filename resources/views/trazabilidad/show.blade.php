@@ -21,13 +21,13 @@
             <p class="text-gray-500 mt-1">Trazabilidad del ciclo de esterilización y uso.</p>
         </div>
 
-            @if(auth()->check() && auth()->user()->role == 1)
+            
                 <div class="flex flex-col items-end gap-3">
                     <span class="px-4 py-2 rounded-lg font-bold text-sm bg-indigo-100 text-indigo-800 border border-indigo-200">
                         Estado Actual: {{ $caja->estado_actual }}
                      </span>
                 </div>
-            @endif
+           
         </div>
     </div>
 
@@ -90,7 +90,7 @@
                 @endif
             @endforeach
 
-            @if(auth()->check() && auth()->user()->role == 1)
+            @if(auth()->check() && auth()->user()->hasAccess(['admin', 'esterilizacion']))
                 @php
                     $flujo_normal = [
                         'Lavado' => 'Esterilizada', 'Esterilizada' => 'Almacenada',

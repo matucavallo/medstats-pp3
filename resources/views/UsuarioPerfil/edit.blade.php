@@ -42,6 +42,8 @@
                         'estadisticas' => 'Estadísticas',
                         'camas' => 'Camas',
                         'cirugias' => 'Cirugías',
+                        'esterilizacion' => 'Esterilización',
+
                     ];
                 @endphp
 

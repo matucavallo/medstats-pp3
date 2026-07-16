@@ -53,7 +53,7 @@ class TrazabilidadController extends Controller
     public function create()
     {
         // Solo administradores pueden ver el formulario
-        if (auth()->check() && auth()->user()->role != 1) {
+        if (auth()->check() && !auth()->user()->hasAccess(['admin', 'esterilizacion'])) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
         return view('trazabilidad.create');
@@ -63,7 +63,7 @@ class TrazabilidadController extends Controller
     public function store(\Illuminate\Http\Request $request)
     {
         // Doble seguridad para guardar
-        if (auth()->check() && auth()->user()->role != 1) {
+        if (auth()->check() && !auth()->user()->hasAccess(['admin', 'esterilizacion'])) {
             abort(403, 'Acceso denegado.');
         }
 
@@ -102,7 +102,7 @@ class TrazabilidadController extends Controller
  public function actualizarEstado(\Illuminate\Http\Request $request, $id)
     {
         // 1. Doble validación de seguridad (Solo Admin)
-        if (auth()->check() && auth()->user()->role != 1) {
+        if (auth()->check() && !auth()->user()->hasAccess(['admin', 'esterilizacion'])) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
 
@@ -174,7 +174,7 @@ class TrazabilidadController extends Controller
     public function destroy($id)
     {
         // 1. Validamos que solo el Administrador (rol 1) pueda borrar
-        if (auth()->check() && auth()->user()->role != 1) {
+        if (auth()->check() && !auth()->user()->hasAccess(['admin', 'esterilizacion'])) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
 

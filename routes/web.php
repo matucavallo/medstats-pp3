@@ -285,17 +285,23 @@ Route::middleware(['auth', 'roles:admin'])->group(function () {
 });
 
 //Trazabilidad
-Route::prefix('trazabilidad')->group(function () {
+// Cualquier usuario autenticado puede ver el listado (solo lectura)
+Route::middleware(['auth'])->prefix('trazabilidad')->group(function () {
     Route::get('/', [TrazabilidadController::class, 'index'])->name('trazabilidad.index');
-    
-    // NUEVAS RUTAS PARA CREAR (¡Antes del {id}!)
+});
+
+// Solo Admin y Esterilización pueden gestionar (crear, actualizar estado, eliminar) las cajas
+Route::middleware(['auth', 'roles:admin,esterilizacion'])->prefix('trazabilidad')->group(function () {
     Route::get('/crear', [TrazabilidadController::class, 'create'])->name('trazabilidad.create');
-    // NUEVA RUTA PARA ELIMINAR (Debe usar el método DELETE por convención)
-    
     Route::post('/guardar', [TrazabilidadController::class, 'store'])->name('trazabilidad.store');
     Route::delete('/{id}/eliminar', [TrazabilidadController::class, 'destroy'])->name('trazabilidad.destroy');
-    Route::get('/{id}', [TrazabilidadController::class, 'show'])->name('trazabilidad.show');
     Route::post('/{id}/estado', [TrazabilidadController::class, 'actualizarEstado'])->name('trazabilidad.estado');
+});
+
+// Cualquier usuario autenticado puede ver el detalle/estado de una caja (solo lectura)
+// Va al final a propósito: al ser un comodín (GET /{id}) tiene que quedar después de /crear
+Route::middleware(['auth'])->prefix('trazabilidad')->group(function () {
+    Route::get('/{id}', [TrazabilidadController::class, 'show'])->name('trazabilidad.show');
 });
 
 // 👇 Debe ir fuera de cualquier grupo con 'auth' o 'roles'
