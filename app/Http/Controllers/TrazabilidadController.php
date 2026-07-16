@@ -191,6 +191,36 @@ class TrazabilidadController extends Controller
         // 5. Redirigimos al listado principal con un mensaje de éxito
        return redirect()->back()->with('success', 'Caja enviada a desuso correctamente.');
     }
+
+   public function estadisticas()
+    {
+        // 1. MÉTRICAS PARA LAS TARJETAS SUPERIORES
+        // Contamos las cajas según su estado actual en la tabla principal
+        $totalCajas = \App\Models\CajaQuirurgica::count();
+        $cajasAlmacenadas = \App\Models\CajaQuirurgica::where('estado_actual', 'Almacenada')->count();
+        $cajasEnUso = \App\Models\CajaQuirurgica::where('estado_actual', 'En Uso')->count();
+        $cajasLavado = \App\Models\CajaQuirurgica::where('estado_actual', 'Lavado')->count();
+        $cajasEnDesuso = \App\Models\CajaQuirurgica::where('estado_actual', 'En Desuso')->count();
+        $cajasEsterilizadas = \App\Models\CajaQuirurgica::where('estado_actual', 'Esterilizada')->count();
+
+        // 2. DATOS PARA LA TABLA DEL HISTORIAL
+        // Traemos todos los registros de la tabla historial_cajas ordenados del más nuevo al más viejo
+        // Usamos 'with' para traer los datos de la caja y del empleado asociado de una sola vez
+        $historial = \App\Models\HistorialCaja::with(['cajaQuirurgica', 'empleado'])
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        // 3. ENVIAR TODO A LA VISTA
+        return view('trazabilidad.estadisticas', compact(
+            'totalCajas', 
+            'cajasAlmacenadas', 
+            'cajasEnUso', 
+            'cajasLavado', 
+            'cajasEnDesuso',
+            'cajasEsterilizadas',
+            'historial'
+        ));
+    }
     }
 
     
