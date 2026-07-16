@@ -20,65 +20,66 @@ class TrazabilidadController extends Controller
                             ->orderBy('nombre')
                             ->pluck('nombre');
 
-        // Empezamos a armar la consulta a la base de datos
+        
         $query = CajaQuirurgica::query();
 
-        // 4. Aplicamos el filtro de ESTADO (si eligió uno específico)
+        
         if ($filtroEstado == 'En Desuso') {
             $query->onlyTrashed(); // Solo las borradas
         } elseif ($filtroEstado != 'Todas') {
             $query->where('estado_actual', $filtroEstado); // Solo las del estado elegido
         }
 
-        // 5. Aplicamos el filtro de NOMBRE (si eligió uno específico)
+        //  filtro de NOMBRE
         if ($filtroNombre != 'Todas') {
             $query->where('nombre', $filtroNombre);
         }
 
-        // 6. Ejecutamos la búsqueda final y traemos los resultados
+        
         $cajas = $query->get();
 
-        // Le mandamos todo a la vista
+       
         return view('trazabilidad.index', compact('cajas', 'filtroEstado', 'filtroNombre', 'nombresCajas'));
     }
     
 
     public function show($id)
     {
-        // Traemos la caja con su historial, el empleado que registró y la cirugía vinculada
+        
         $caja = CajaQuirurgica::withTrashed()->findOrFail($id);
         return view('trazabilidad.show', compact('caja'));
     }
-    // Mostrar formulario de creación
+    
     public function create()
     {
-        // Solo administradores pueden ver el formulario
+        
         if (auth()->check() && auth()->user()->role != 1) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
         return view('trazabilidad.create');
     }
 
-    // Guardar la nueva caja en la base de datos
+    
     public function store(\Illuminate\Http\Request $request)
     {
-        // Doble seguridad para guardar
+      
         if (auth()->check() && auth()->user()->role != 1) {
             abort(403, 'Acceso denegado.');
         }
 
-        // 1. Validamos los datos (evita que el programa explote si repiten el código)
+        
         $request->validate([
             'codigo' => 'required|unique:caja_quirurgicas,codigo',
             'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'required|string'
         ], [
             'codigo.unique' => 'Ese código de caja ya existe en el sistema.',
             'codigo.required' => 'El código es obligatorio.',
-            'nombre.required' => 'El nombre de la caja es obligatorio.'
+            'nombre.required' => 'El nombre de la caja es obligatorio.',
+            'descripcion.required' => 'La descripcion de la caja es obligatoria.'
         ]);
 
-        // 2. Creamos la caja (por defecto nace "Almacenada" y limpia)
+        
         $caja = CajaQuirurgica::create([
             'codigo' => $request->codigo,
             'nombre' => $request->nombre,
@@ -86,7 +87,7 @@ class TrazabilidadController extends Controller
             'estado_actual' => 'Almacenada'
         ]);
 
-        // 3. Le creamos su primer punto en la línea de tiempo
+        
         HistorialCaja::create([
             'caja_quirurgicas_id' => $caja->id,
             'empleado_id' => auth()->id(),
@@ -95,25 +96,25 @@ class TrazabilidadController extends Controller
             'observaciones' => 'Alta de nueva caja en el sistema.'
         ]);
 
-        // 4. Volvemos al inicio con un mensaje de éxito
+        
         return redirect()->route('trazabilidad.index')->with('success', 'Caja creada exitosamente.');
     }
 
  public function actualizarEstado(\Illuminate\Http\Request $request, $id)
     {
-        // 1. Doble validación de seguridad (Solo Admin)
+        
         if (auth()->check() && auth()->user()->role != 1) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
 
         $caja = CajaQuirurgica::findOrFail($id);
         
-        // Atrapamos qué botón apretó el usuario (por defecto asume avanzar)
+        
         $accion = $request->input('accion', 'avanzar'); 
 
-        // ==========================================
+        
         // LÓGICA DE RETROCEDER (BORRAR EL ÚLTIMO)
-        // ==========================================
+       
         if ($accion == 'retroceder') {
             
             // Consultamos directamente a la BD cuántos pasos hay en total
@@ -141,9 +142,7 @@ class TrazabilidadController extends Controller
                 return redirect()->back()->with('error', 'No se puede retroceder más. Este es el estado inicial de la caja.');
             }
         } 
-        // ==========================================
-        // LÓGICA DE AVANZAR NORMAL
-        // ==========================================
+       
         else {
             $flujo_normal = [
                 'Lavado'       => 'Esterilizada',
@@ -153,7 +152,7 @@ class TrazabilidadController extends Controller
             ];
             $nuevo_estado = $flujo_normal[$caja->estado_actual] ?? 'Lavado';
 
-            // Actualizamos la caja
+            
             $caja->update([
                 'estado_actual' => $nuevo_estado
             ]);
@@ -170,25 +169,19 @@ class TrazabilidadController extends Controller
             return redirect()->back()->with('success', '¡Estado avanzado a ' . $nuevo_estado . '!');
         }
     }
-    // Eliminar una caja y todo su historial
+  
     public function destroy($id)
     {
-        // 1. Validamos que solo el Administrador (rol 1) pueda borrar
+        
         if (auth()->check() && auth()->user()->role != 1) {
             abort(403, 'Acceso denegado. Solo administradores.');
         }
 
-        // 2. Buscamos la caja
         $caja = CajaQuirurgica::findOrFail($id);
 
-        // 3. Borramos TODO el historial asociado a esa caja primero
-        // Usamos el nombre de la columna que arreglamos antes con la "s"
-        //\App\Models\HistorialCaja::where('caja_quirurgicas_id', $caja->id)->delete();
-
-        // 4. Ahora sí, borramos la caja física
         $caja->delete();
 
-        // 5. Redirigimos al listado principal con un mensaje de éxito
+       
        return redirect()->back()->with('success', 'Caja enviada a desuso correctamente.');
     }
     }
