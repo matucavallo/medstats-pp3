@@ -10,16 +10,37 @@
         </h1>
         
         <div class="d-flex align-items-center" style="gap: 15px;">
-            <form action="{{ route('trazabilidad.index') }}" method="GET" class="d-inline-block mr-3">
-    <label class="font-weight-bold mr-2">Filtrar por Estado:</label>
-    <select name="estado" onchange="this.form.submit()" class="form-select d-inline-block w-auto" style="border-radius: 5px; padding: 5px;">
-        <option value="Todas" {{ (isset($filtro) && $filtro == 'Todas') ? 'selected' : '' }}>Todas las Cajas</option>
-        <option value="Lavado" {{ (isset($filtro) && $filtro == 'Lavado') ? 'selected' : '' }}>Lavado</option>
-        <option value="Esterilizada" {{ (isset($filtro) && $filtro == 'Esterilizada') ? 'selected' : '' }}>Esterilizada</option>
-        <option value="Almacenada" {{ (isset($filtro) && $filtro == 'Almacenada') ? 'selected' : '' }}>Almacenada</option>
-        <option value="En Uso" {{ (isset($filtro) && $filtro == 'En Uso') ? 'selected' : '' }}>En Uso</option>
-        <option value="En Desuso" {{ (isset($filtro) && $filtro == 'En Desuso') ? 'selected' : '' }}>En Desuso</option>
-    </select>
+           <form action="{{ route('trazabilidad.index') }}" method="GET" class="d-inline-block mr-3">
+    <div class="d-flex align-items-center" style="gap: 15px;">
+        
+        <div class="d-flex align-items-center">
+            <label class="font-weight-bold mr-2 mb-0" style="color: #245360;">Tipo de Caja:</label>
+            <select name="nombre_caja" onchange="this.form.submit()" class="form-select" style="border-radius: 5px; padding: 5px 30px 5px 10px; min-width: 180px;">
+                <option value="Todas" {{ (isset($filtroNombre) && $filtroNombre == 'Todas') ? 'selected' : '' }}>Todos los tipos</option>
+                
+                @if(isset($nombresCajas))
+                    @foreach($nombresCajas as $nombre)
+                        <option value="{{ $nombre }}" {{ (isset($filtroNombre) && $filtroNombre == $nombre) ? 'selected' : '' }}>
+                            {{ $nombre }}
+                        </option>
+                    @endforeach
+                @endif
+            </select>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <label class="font-weight-bold mr-2 mb-0" style="color: #245360;">Estado:</label>
+            <select name="estado" onchange="this.form.submit()" class="form-select" style="border-radius: 5px; padding: 5px 30px 5px 10px; min-width: 150px;">
+                <option value="Todas" {{ (isset($filtroEstado) && $filtroEstado == 'Todas') ? 'selected' : '' }}>Todos los estados</option>
+                <option value="Lavado" {{ (isset($filtroEstado) && $filtroEstado == 'Lavado') ? 'selected' : '' }}>Lavado</option>
+                <option value="Esterilizada" {{ (isset($filtroEstado) && $filtroEstado == 'Esterilizada') ? 'selected' : '' }}>Esterilizada</option>
+                <option value="Almacenada" {{ (isset($filtroEstado) && $filtroEstado == 'Almacenada') ? 'selected' : '' }}>Almacenada</option>
+                <option value="En Uso" {{ (isset($filtroEstado) && $filtroEstado == 'En Uso') ? 'selected' : '' }}>En Uso</option>
+                <option value="En Desuso" {{ (isset($filtroEstado) && $filtroEstado == 'En Desuso') ? 'selected' : '' }}>En Desuso</option>
+            </select>
+        </div>
+
+    </div>
 </form>
 
             @if(auth()->check() && auth()->user()->role == 1)
