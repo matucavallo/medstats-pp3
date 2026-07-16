@@ -25,26 +25,26 @@
                         $borderColor = '#A3D9A5'; // verde pastel, igual que Medicamentos
                         $cards = [
                             [
-                                'title' => 'Usuarios',
-                                'text' => 'Dar de alta nuevos usuarios del sistema.',
-                                'route' => route('usuarios.index'),
-                                'btn' => 'Dar de Alta Usuarios',
+                                'title' => 'Servicios',
+                                'text' => 'Administrar Servicios del Hospital.',
+                                'route' => route('servicios.index'),
+                                'btn' => 'Ir a Servicios',
                                 'access' => 'admin',
                             ],
-                            [
-                                'title' => 'Medicamentos',
-                                'text' => 'Agregar o editar medicamentos disponibles.',
-                                'route' => route('medicamentos.index'),
-                                'btn' => 'Ir a Medicamentos',
-                                'access' => ['admin', 'insumos'],
+                             [
+                                'title' => 'Salas',
+                                'text' => 'Definir salas del establecimiento y su capacidad.',
+                                'route' => route('salas.index'),
+                                'btn' => 'Gestionar Salas',
+                                'access' => 'admin',
                             ],
-                            [
+                             [
                                 'title' => 'Habitaciones',
                                 'text' => 'Agregar habitaciones nuevas para asignación de camas.',
                                 'route' => route('habitaciones.index'),
                                 'btn' => 'Gestionar Habitación',
                                 'access' => 'admin',
-                            ],
+                            ], 
                             [
                                 'title' => 'Camas',
                                 'text' => 'Agregar Nueva Cama.',
@@ -53,24 +53,17 @@
                                 'access' => 'admin',
                             ],
                             [
-                                'title' => 'Salas',
-                                'text' => 'Definir salas del establecimiento y su capacidad.',
-                                'route' => route('salas.index'),
-                                'btn' => 'Gestionar Salas',
+                                'title' => 'Quirófanos',
+                                'text' => 'Gestionar quirófanos habilitados para cirugías.',
+                                'route' => route('quirofanos.index'),
+                                'btn' => 'Gestionar Quirófanos',
                                 'access' => 'admin',
                             ],
-                            [
-                                'title' => 'Empleados',
-                                'text' => 'Agregar empleados y definir su profesión.',
-                                'route' => route('empleados.index'),
-                                'btn' => 'Ir a Empleados',
-                                'access' => 'admin',
-                            ],
-                            [
-                                'title' => 'Roles de Usuario',
-                                'text' => 'Gestionar los perfiles y permisos del sistema.',
-                                'route' => route('UsuarioPerfil.index'),
-                                'btn' => 'Ver Roles',
+                             [
+                                'title' => 'Procedimientos',
+                                'text' => 'Administrar tipos de procedimientos quirúrgicos.',
+                                'route' => route('procedimientos.index'),
+                                'btn' => 'Ir a Procedimientos',
                                 'access' => 'admin',
                             ],
                             [
@@ -81,10 +74,17 @@
                                 'access' => 'admin',
                             ],
                             [
-                                'title' => 'Quirófanos',
-                                'text' => 'Gestionar quirófanos habilitados para cirugías.',
-                                'route' => route('quirofanos.index'),
-                                'btn' => 'Gestionar Quirófanos',
+                                'title' => 'Medicamentos',
+                                'text' => 'Agregar o editar medicamentos disponibles.',
+                                'route' => route('medicamentos.index'),
+                                'btn' => 'Ir a Medicamentos',
+                                'access' => ['admin', 'insumos'],
+                            ],
+                            [
+                                'title' => 'Trazabilidad',
+                                'text' => 'Administrar seguimiento de insumos y cajas quirúrgicas.',
+                                'route' => route('trazabilidad.index'),
+                                'btn' => 'Ir a trazabilidad',
                                 'access' => 'admin',
                             ],
                             [
@@ -95,13 +95,6 @@
                                 'access' => 'admin',
                             ],
                             [
-                                'title' => 'Procedimientos',
-                                'text' => 'Administrar tipos de procedimientos quirúrgicos.',
-                                'route' => route('procedimientos.index'),
-                                'btn' => 'Ir a Procedimientos',
-                                'access' => 'admin',
-                            ],
-                            [
                                 'title' => 'Especialidades',
                                 'text' => 'Administrar Especialidades.',
                                 'route' => route('especialidades.index'),
@@ -109,12 +102,28 @@
                                 'access' => 'admin',
                             ],
                             [
-                                'title' => 'Servicios',
-                                'text' => 'Administrar Servicios del Hospital.',
-                                'route' => route('servicios.index'),
-                                'btn' => 'Ir a Servicios',
+                                'title' => 'Empleados',
+                                'text' => 'Agregar empleados y definir su profesión.',
+                                'route' => route('empleados.index'),
+                                'btn' => 'Ir a Empleados',
                                 'access' => 'admin',
                             ],
+                             [
+                                'title' => 'Roles de Usuario',
+                                'text' => 'Gestionar los perfiles y permisos del sistema.',
+                                'route' => route('UsuarioPerfil.index'),
+                                'btn' => 'Ver Roles',
+                                'access' => 'admin',
+                            ],
+                            [
+                                'title' => 'Usuarios',
+                                'text' => 'Dar de alta nuevos usuarios del sistema.',
+                                'route' => route('usuarios.index'),
+                                'btn' => 'Dar de Alta Usuarios',
+                                'access' => 'admin',
+                            ],
+                        
+            
                             [
                                 'title' => 'Países',
                                 'text' => 'Administrar países del sistema.',
@@ -136,19 +145,10 @@
                                 'btn' => 'Ir a C.P.',
                                 'access' => 'admin',
                             ],
-                             [
-                                'title' => 'Seguimiento',
-                                'text' => 'Administrar seguimiento de insumos y cajas quirúrgicas.',
-                                'route' => route('trazabilidad.index'),
-                                'btn' => 'Ir a seguimiento',
-                                'access' => 'admin',
-                            ],
+            
                         ];
 
-                        // Ordenar alfabéticamente por título
-                        usort($cards, function ($a, $b) {
-                            return strcmp($a['title'], $b['title']);
-                        });
+                    
                     @endphp
 
                     @foreach ($cards as $card)

@@ -10,19 +10,17 @@
         </h1>
         
         <div class="d-flex align-items-center" style="gap: 15px;">
-            <form method="GET" action="{{ route('trazabilidad.index') }}" class="d-flex align-items-center m-0" style="gap: 10px;">
-                <label for="estado" class="font-semibold text-secondary mb-0 text-nowrap">Filtrar por Estado:</label>
-                <select name="estado" id="estado" 
-                        class="form-select rounded-lg text-sm font-weight-bold" 
-                        style="border: 2px solid #1B7D8F; color: #1B7D8F; min-width: 160px;"
-                        onchange="this.form.submit()">
-                    <option value="">Todas las Cajas</option>
-                    <option value="Lavado" {{ request('estado') == 'Lavado' ? 'selected' : '' }}>Lavado</option>
-                    <option value="Esterilizada" {{ request('estado') == 'Esterilizada' ? 'selected' : '' }}>Esterilizada</option>
-                    <option value="Almacenada" {{ request('estado') == 'Almacenada' ? 'selected' : '' }}>Almacenada</option>
-                    <option value="En Uso" {{ request('estado') == 'En Uso' ? 'selected' : '' }}>En Uso</option>
-                </select>
-            </form>
+            <form action="{{ route('trazabilidad.index') }}" method="GET" class="d-inline-block mr-3">
+    <label class="font-weight-bold mr-2">Filtrar por Estado:</label>
+    <select name="estado" onchange="this.form.submit()" class="form-select d-inline-block w-auto" style="border-radius: 5px; padding: 5px;">
+        <option value="Todas" {{ (isset($filtro) && $filtro == 'Todas') ? 'selected' : '' }}>Todas las Cajas</option>
+        <option value="Lavado" {{ (isset($filtro) && $filtro == 'Lavado') ? 'selected' : '' }}>Lavado</option>
+        <option value="Esterilizada" {{ (isset($filtro) && $filtro == 'Esterilizada') ? 'selected' : '' }}>Esterilizada</option>
+        <option value="Almacenada" {{ (isset($filtro) && $filtro == 'Almacenada') ? 'selected' : '' }}>Almacenada</option>
+        <option value="En Uso" {{ (isset($filtro) && $filtro == 'En Uso') ? 'selected' : '' }}>En Uso</option>
+        <option value="En Desuso" {{ (isset($filtro) && $filtro == 'En Desuso') ? 'selected' : '' }}>En Desuso</option>
+    </select>
+</form>
 
             @if(auth()->check() && auth()->user()->role == 1)
                 <a href="{{ route('trazabilidad.create') }}"
@@ -47,78 +45,124 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($cajas as $caja)
-                <tr>
-                    <td class="font-weight-bold">{{ $caja->codigo }}</td>
-                    <td>{{ $caja->nombre }}</td>
-                    <td>
-                        @php
-                            $colorBadge = 'bg-secondary';
-                            if($caja->estado_actual == 'Esterilizada') $colorBadge = 'bg-success';
-                            if($caja->estado_actual == 'En Uso') $colorBadge = 'bg-danger';
-                            if($caja->estado_actual == 'Lavado') $colorBadge = 'bg-primary';
-                        @endphp
-                        <span class="badge {{ $colorBadge }} text-white p-2">
-                            {{ $caja->estado_actual }}
-                        </span>
-                    </td>
-                    <td>{{ $caja->updated_at->format('d/m/Y H:i') }}</td>
-                    <td class="align-middle">
-    <div class="d-flex align-items-center" style="gap: 8px;">
-        
-        <a href="{{ route('trazabilidad.show', $caja->id) }}" class="btn btn-sm text-white" style="background-color: #17a2b8; border-color: #17a2b8;">
-            Ver Línea de Tiempo
-        </a>
+                @foreach($cajas as $caja)
+    <tr>
+        <td class="align-middle font-weight-bold">
+            {{ $caja->codigo }}
+        </td>
 
-        @if(auth()->check() && auth()->user()->role == 1)
-            <form action="{{ route('trazabilidad.destroy', $caja->id) }}" method="POST" class="m-0" onsubmit="return confirm('⚠️ ¡ATENCIÓN! ¿Estás seguro de que querés borrar la caja {{ $caja->codigo }}? Se eliminará TODO su historial y no se puede recuperar.');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center" title="Eliminar Caja" style="height: 31px; width: 32px; padding: 0;">
-                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
-                </button>
-            </form>
-        @endif
+        <td class="align-middle">
+            {{ $caja->nombre }}
+        </td>
 
-    </div>
-</td>
+        <td class="align-middle">
+            @if($caja->trashed())
+                <span class="badge bg-secondary text-white p-2">En Desuso</span>
+            @else
+                @php
+                    $colorBadge = 'bg-secondary';
+                    if($caja->estado_actual == 'Esterilizada') $colorBadge = 'bg-success';
+                    if($caja->estado_actual == 'En Uso') $colorBadge = 'bg-danger';
+                    if($caja->estado_actual == 'Lavado') $colorBadge = 'bg-primary';
+                @endphp
+                <span class="badge {{ $colorBadge }} text-white p-2">
+                    {{ $caja->estado_actual }}
+                </span>
+            @endif
+        </td>
+
+        <td class="align-middle">
+            {{ $caja->updated_at ? $caja->updated_at->format('d/m/Y H:i') : 'Sin datos' }}
+        </td>
+
+       <td class="align-middle">
+            @if(!$caja->trashed())
+                <div class="d-flex align-items-center" style="gap: 8px;">
                     
-                </tr>
-                @empty
-                <tr>
-        <td colspan="5" class="text-center text-muted py-4">
-            No hay cajas quirúrgicas registradas con ese estado.
+                    <button type="button" class="btn btn-sm text-white d-flex align-items-center justify-content-center" style="background-color: #6c757d; border-color: #6c757d; height: 31px; padding: 0 10px;" data-toggle="modal" data-target="#modalContenido{{ $caja->id }}" title="Ver contenido">
+                        <i data-lucide="package" style="width: 16px; height: 16px; margin-right: 5px;"></i> Contenido
+                    </button>
+
+                    <a href="{{ route('trazabilidad.show', $caja->id) }}" class="btn btn-sm text-white d-flex align-items-center" style="background-color: #17a2b8; border-color: #17a2b8; height: 31px;">
+                        Ver Línea de Tiempo
+                    </a>
+
+                    @if(auth()->check() && auth()->user()->role == 1)
+                        <form action="{{ route('trazabilidad.destroy', $caja->id) }}" method="POST" class="m-0" onsubmit="return confirm('⚠️ ¿Estás seguro de enviar la caja a desuso?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center" title="Enviar a Desuso" style="height: 31px; width: 32px; padding: 0;">
+                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            @else
+                <span class="text-muted font-weight-bold" style="font-size: 0.85rem;">
+                    <i data-lucide="lock" class="d-inline-block mr-1" style="width: 14px; height: 14px; margin-top: -2px;"></i> Archivada
+                </span>
+            @endif
         </td>
     </tr>
-                @endforelse
+@endforeach
             </tbody>
         </table>
-    </div>
-</div>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        $.fn.dataTable.ext.errMode = 'none'; 
+       </tbody>
+        </table>
+    </div> </div> @foreach($cajas as $caja)
+    <div class="modal fade" id="modalContenido{{ $caja->id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ $caja->id }}" aria-hidden="true" style="z-index: 1060;"> 
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
+                <div class="modal-header" style="background-color: #f8f9fa;">
+                    <h5 class="modal-title text-dark" id="modalLabel{{ $caja->id }}">                        
+                        <strong>{{ $caja->codigo }}</strong> - {{ $caja->nombre }}
+                    </h5>
+                    <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Cerrar" style="font-size: 1.5rem; border: none; background: transparent; cursor: pointer;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-start" style="white-space: pre-wrap; color: #495057; background-color: #ffffff; padding: 20px;">
+                    {{ $caja->descripcion ? $caja->descripcion : 'No hay descripción cargada para esta caja.' }}
+                </div>
+                <div class="modal-footer" style="background-color: #ffffff;">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>       
+        </div>
+    </div>      
+@endforeach
 
-        $('#tablaCajas').DataTable({
-            "stateSave": true,
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ cajas por página",
-                "zeroRecords": "No se encontraron cajas con ese criterio.",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay cajas disponibles",
-                "infoFiltered": "(filtrado de _MAX_ cajas totales)",
-                "search": "Buscar caja:",
-                "paginate": {
-                    "first": "Primero", "last": "Último", "next": "Siguiente", "previous": "Anterior"
-                }
-            },
-            "order": [[ 0, "asc" ]]
+
+<script>     
+    document.addEventListener("DOMContentLoaded", function() {                  
+        $.fn.dataTable.ext.errMode = 'none';          
+        $('#tablaCajas').DataTable({             
+            "stateSave": true,             
+            "language": {               
+                "lengthMenu": "Mostrar _MENU_ cajas por página",                 
+                "zeroRecords": "No se encontraron cajas con ese criterio.",                 
+                "info": "Mostrando página _PAGE_ de _PAGES_",                 
+                "infoEmpty": "No hay cajas disponibles",                 
+                "infoFiltered": "(filtrado de _MAX_ cajas totales)",  
+                "search": "Buscar caja:",                 
+                "paginate": {                     
+                    "first": "Primero", "last": "Último", "next": "Siguiente", "previous": "Anterior"                 
+                }             
+            },      
+            "order": [[ 0, "asc" ]]         
         });
         
-        if(typeof lucide !== 'undefined') {
+        if(typeof lucide !== 'undefined') {             
             lucide.createIcons();
-        }
+        }     
+    $('.modal').appendTo('body');
+    });     
+
+  
+    $(document).on('click', '[data-dismiss="modal"], [data-bs-dismiss="modal"], .btn-close, .close', function() {         
+        $('.modal').modal('hide');         
+        $('.modal-backdrop').remove();         
+        $('body').removeClass('modal-open').css('overflow', 'auto');     
     });
-</script>
+</script> 
 @endsection
