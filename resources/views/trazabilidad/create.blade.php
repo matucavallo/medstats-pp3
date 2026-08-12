@@ -44,6 +44,20 @@
                             <label for="nombre" class="font-weight-bold text-secondary">Nombre descriptivo</label>
                             <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej: Caja de Traumatología Menor" value="{{ old('nombre') }}" required>
                         </div>
+                        <!-- NUEVO CAMPO: Tipo de Esterilización -->
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold" style="color: #495057;">Tipo de Esterilización Requerida</label>
+                            <select name="tipo_esterilizacion" class="form-select" style="border-radius: 5px; padding: 10px;" required>
+                                <option value="" disabled selected>Seleccione el método...</option>
+                                <option value="Autoclave" {{ old('tipo_esterilizacion', isset($caja) ? $caja->tipo_esterilizacion : '') == 'Autoclave' ? 'selected' : '' }}>
+                                    Autoclave 
+                                </option>
+                                <option value="Óxido de Etileno" {{ old('tipo_esterilizacion', isset($caja) ? $caja->tipo_esterilizacion : '') == 'Óxido de Etileno' ? 'selected' : '' }}>
+                                    Óxido de Etileno
+                                </option>
+                            </select>
+                            <small class="text-muted d-block mt-1">Defina el proceso adecuado según el material de la caja.</small>
+                        </div>
                         <div class="mb-4">
                             <label for="descripcion" class="form-label text-secondary font-weight-bold" style="font-size: 0.95rem;">
                              Descripción y Contenido de la Caja

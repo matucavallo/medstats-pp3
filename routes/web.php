@@ -58,6 +58,7 @@ Route::view('/ajustes', 'ajustes')->middleware('auth')->name('ajustes');
 Route::middleware(['auth', 'roles:estadisticas'])->group(function () {
     Route::get('/cirugias/estadisticas', [CirugiaController::class, 'estadisticas'])->name('cirugias.estadisticas');
     Route::get('/stocks/estadisticasstock', [StockController::class, 'estadisticas'])->name('stocks.estadisticasstock');
+    Route::get('/trazabilidad/estadisticas', [App\Http\Controllers\TrazabilidadController::class, 'estadisticas'])->name('trazabilidad.estadisticas');
 });
 
 // Route::get('/prueba', function (){
@@ -296,6 +297,11 @@ Route::prefix('trazabilidad')->group(function () {
     Route::delete('/{id}/eliminar', [TrazabilidadController::class, 'destroy'])->name('trazabilidad.destroy');
     Route::get('/{id}', [TrazabilidadController::class, 'show'])->name('trazabilidad.show');
     Route::post('/{id}/estado', [TrazabilidadController::class, 'actualizarEstado'])->name('trazabilidad.estado');
+   
+Route::get('/trazabilidad/{id}/edit', [App\Http\Controllers\TrazabilidadController::class, 'edit'])->name('trazabilidad.edit');
+
+// Ruta para guardar los cambios en la base de datos (cuando apretás el botón de actualizar)
+Route::put('/trazabilidad/{id}', [App\Http\Controllers\TrazabilidadController::class, 'update'])->name('trazabilidad.update');
 });
 
 // 👇 Debe ir fuera de cualquier grupo con 'auth' o 'roles'
