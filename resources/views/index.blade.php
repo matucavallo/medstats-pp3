@@ -97,7 +97,7 @@
                 </a>
                 @endif
 
-                <!-- CARD 2: Seguimineto -->
+                <!-- CARD 2: Trazabilidad -->
                 @if(Auth::user()->hasAccess('estadisticas'))
                 <a href="{{ route('trazabilidad.index') }}"
                     class="flex rounded-2xl overflow-hidden transform hover:scale-[1.02] transition duration-300 bg-white text-decoration-none h-40">

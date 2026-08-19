@@ -32,10 +32,10 @@
             <label class="font-weight-bold mr-2 mb-0" style="color: #245360;">Estado:</label>
             <select name="estado" onchange="this.form.submit()" class="form-select" style="border-radius: 5px; padding: 5px 30px 5px 10px; min-width: 150px;">
                 <option value="Todas" {{ (isset($filtroEstado) && $filtroEstado == 'Todas') ? 'selected' : '' }}>Todos los estados</option>
-                <option value="Lavado" {{ (isset($filtroEstado) && $filtroEstado == 'Lavado') ? 'selected' : '' }}>Lavado</option>
                 <option value="Esterilizada" {{ (isset($filtroEstado) && $filtroEstado == 'Esterilizada') ? 'selected' : '' }}>Esterilizada</option>
                 <option value="Almacenada" {{ (isset($filtroEstado) && $filtroEstado == 'Almacenada') ? 'selected' : '' }}>Almacenada</option>
                 <option value="En Uso" {{ (isset($filtroEstado) && $filtroEstado == 'En Uso') ? 'selected' : '' }}>En Uso</option>
+                <option value="Deposito esteril" {{ (isset($filtroEstado) && $filtroEstado == 'Deposito esteril') ? 'selected' : '' }}>Deposito esteril</option>
                 <option value="En Desuso" {{ (isset($filtroEstado) && $filtroEstado == 'En Desuso') ? 'selected' : '' }}>En Desuso</option>
             </select>
         </div>
@@ -84,7 +84,7 @@
                     $colorBadge = 'bg-secondary';
                     if($caja->estado_actual == 'Esterilizada') $colorBadge = 'bg-success';
                     if($caja->estado_actual == 'En Uso') $colorBadge = 'bg-danger';
-                    if($caja->estado_actual == 'Lavado') $colorBadge = 'bg-primary';
+                    if($caja->estado_actual == 'Deposito esteril') $colorBadge = 'bg-primary';
                 @endphp
                 <span class="badge {{ $colorBadge }} text-white p-2">
                     {{ $caja->estado_actual }}
@@ -96,19 +96,30 @@
             {{ $caja->updated_at ? $caja->updated_at->format('d/m/Y H:i') : 'Sin datos' }}
         </td>
 
-       <td class="align-middle">
+       <!-- 5. Acciones -->
+        <td class="align-middle">
             @if(!$caja->trashed())
                 <div class="d-flex align-items-center" style="gap: 8px;">
                     
+                    <!-- Botón Ver Contenido (Modal) -->
                     <button type="button" class="btn btn-sm text-white d-flex align-items-center justify-content-center" style="background-color: #6c757d; border-color: #6c757d; height: 31px; padding: 0 10px;" data-toggle="modal" data-target="#modalContenido{{ $caja->id }}" title="Ver contenido">
                         <i data-lucide="package" style="width: 16px; height: 16px; margin-right: 5px;"></i> Contenido
                     </button>
 
+                    <!-- Botón Ver Línea de Tiempo -->
                     <a href="{{ route('trazabilidad.show', $caja->id) }}" class="btn btn-sm text-white d-flex align-items-center" style="background-color: #17a2b8; border-color: #17a2b8; height: 31px;">
                         Ver Línea de Tiempo
                     </a>
 
-                    @if(auth()->check() && auth()->user()->role == 1)
+                    <!-- Botón de Editar -->
+                    @if(auth()->check() && (auth()->user()->role == 1 || auth()->user()->role == 2))
+                        <a href="{{ route('trazabilidad.edit', $caja->id) }}" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center" title="Editar Caja" style="height: 31px; width: 32px; padding: 0;">
+                            <i data-lucide="pencil" style="width: 16px; height: 16px;"></i>
+                        </a>
+                    @endif
+
+                    <!-- Botón Eliminar -->
+                    @if(auth()->check() && (auth()->user()->role == 1 || auth()->user()->role == 2))
                         <form action="{{ route('trazabilidad.destroy', $caja->id) }}" method="POST" class="m-0" onsubmit="return confirm('⚠️ ¿Estás seguro de enviar la caja a desuso?');">
                             @csrf
                             @method('DELETE')
@@ -119,17 +130,17 @@
                     @endif
                 </div>
             @else
+                <!-- ESTO ERA LO QUE FALTABA -->
                 <span class="text-muted font-weight-bold" style="font-size: 0.85rem;">
                     <i data-lucide="lock" class="d-inline-block mr-1" style="width: 14px; height: 14px; margin-top: -2px;"></i> Archivada
                 </span>
             @endif
         </td>
     </tr>
-@endforeach
-            </tbody>
-        </table>
-       </tbody>
-        </table>
+ @endforeach
+</tbody>
+</table>
+
     </div> </div> @foreach($cajas as $caja)
     <div class="modal fade" id="modalContenido{{ $caja->id }}" tabindex="-1" role="dialog" aria-labelledby="modalLabel{{ $caja->id }}" aria-hidden="true" style="z-index: 1060;"> 
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -142,9 +153,34 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body text-start" style="white-space: pre-wrap; color: #495057; background-color: #ffffff; padding: 20px;">
+                <div class="modal-body text-start" style="color: #495057; background-color: #ffffff; padding: 20px;">
+                
+                <!-- NUEVO: Mostrar el Tipo de Esterilización -->
+                <div class="mb-3" style="font-size: 0.95rem;">
+                    <i data-lucide="shield-alert" class="d-inline-block mr-1" style="width: 18px; height: 18px; color: #1B7D8F; margin-top: -2px;"></i>
+                    <strong style="color: #245360;">Método de Esterilización:</strong> 
+                    @if($caja->tipo_esterilizacion)
+                        <!-- Si tiene método, lo mostramos como una etiqueta bonita -->
+                        <span class="badge" style="background-color: #c7dfe4; font-size: 0.85rem; padding: 5px 10px;">
+                            {{ $caja->tipo_esterilizacion }}
+                        </span>
+                    @else
+                        <!-- Si está vacío (cajas viejas), avisamos -->
+                        <span class="text-muted fst-italic">No especificado</span>
+                    @endif
+                </div>
+
+                <hr style="border-color: #e2e8f0; margin: 15px 0;">
+
+                <!-- EL CONTENIDO ORIGINAL (La descripción) -->
+                <div style="font-size: 0.95rem;">
+                    <strong style="color: #245360;"><i data-lucide="list" class="d-inline-block mr-1" style="width: 18px; height: 18px; margin-top: -2px;"></i> Detalle del Contenido:</strong>
+                </div>
+                <div class="mt-2" style="white-space: pre-wrap; font-size: 0.95rem;">
                     {{ $caja->descripcion ? $caja->descripcion : 'No hay descripción cargada para esta caja.' }}
                 </div>
+                
+            </div>
                 <div class="modal-footer" style="background-color: #ffffff;">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Cerrar</button>
                 </div>

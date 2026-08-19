@@ -21,32 +21,33 @@
             <p class="text-gray-500 mt-1">Trazabilidad del ciclo de esterilización y uso.</p>
         </div>
 
-            @if(auth()->check() && auth()->user()->role == 1)
-                <div class="flex flex-col items-end gap-3">
-                    <span class="px-4 py-2 rounded-lg font-bold text-sm bg-indigo-100 text-indigo-800 border border-indigo-200">
-                        Estado Actual: {{ $caja->estado_actual }}
-                     </span>
-                </div>
-            @endif
-        </div>
+        @if(auth()->check() && auth()->user()->role == 1)
+            <div class="flex flex-col items-end gap-3">
+                <span class="px-4 py-2 rounded-lg font-bold text-sm bg-indigo-100 text-indigo-800 border border-indigo-200">
+                    Estado Actual: {{ $caja->estado_actual }}
+                 </span>
+            </div>
+        @endif
     </div>
 
     <!-- Contenedor Horizontal de Trazabilidad -->
     <div class="w-full overflow-x-auto pb-12">
-        <div class="flex items-center min-w-[800px] px-8 pt-28">
+        <div class="flex items-center min-w-[900px] px-8 pt-28">
             
+            <!-- CAMBIO 1: Ahora traemos los últimos 5 movimientos -->
             @foreach($caja->historiales->take(-4) as $index => $movimiento)
                 
                 <div class="relative flex flex-col items-center flex-1">
                     
                     <div class="absolute -top-24 flex flex-col items-center">
                         <div class="p-4 bg-white rounded-2xl border-2 border-gray-100 shadow-md">
-                            @if($movimiento->estado_registrado == 'Lavado')
-                                <i data-lucide="droplets" class="w-12 h-12 text-teal-600"></i>
+                            @if($movimiento->estado_registrado == 'Depósito Estéril')
+                                <i data-lucide="layers" class="w-12 h-12 text-indigo-600"></i>
                             
                             @elseif($movimiento->estado_registrado == 'Esterilizada')
                                 <i data-lucide="shield-check" class="w-12 h-12 text-emerald-600"></i>
                             
+                                
                             @elseif($movimiento->estado_registrado == 'Almacenada')
                                 <i data-lucide="archive" class="w-12 h-12 text-slate-500"></i>
                             
@@ -64,6 +65,14 @@
 
                     <div class="mt-8 text-center w-36">
                         <h4 class="text-base font-bold text-gray-800">{{ $movimiento->estado_registrado }}</h4>
+                        
+                        <!-- CAMBIO 3: Si es Esterilizada, mostramos el método abajo del título -->
+                        @if($movimiento->estado_registrado == 'Esterilizada')
+                            <p class="text-xs font-bold text-[#0d7f8c] mb-1">
+                                ({{ $caja->tipo_esterilizacion ?? 'No especificado' }})
+                            </p>
+                        @endif
+
                         <p class="text-sm text-gray-500 mt-1">{{ $movimiento->created_at->format('d/m/Y') }}</p>
                         <p class="text-xs font-semibold text-gray-700 mt-1">
                         <i data-lucide="user" class="inline-block w-3 h-3 mr-1 -mt-0.5 opacity-70"></i>
@@ -84,24 +93,27 @@
                 </div>
 
                 @if(!$loop->last)
-                
                  <div class="flex-auto border-t-4 border-[#0d7f8c] opacity-80 -mt-24"></div>
-
                 @endif
             @endforeach
 
             @if(auth()->check() && auth()->user()->role == 1)
                 @php
+                    // CAMBIO 4: Actualizamos el "Cerebro" de los botones para el ciclo de 5 pasos
                     $flujo_normal = [
-                        'Lavado' => 'Esterilizada', 'Esterilizada' => 'Almacenada',
-                        'Almacenada' => 'En Uso', 'En Uso' => 'Lavado'
+                        'Esterilizada' => 'Depósito Estéril',
+                        'Depósito Estéril' => 'Almacenada',
+                        'Almacenada' => 'En Uso', 
+                        'En Uso' => 'Esterilizada'
                     ];
                     $flujo_inverso = [
-                        'Esterilizada' => 'Lavado', 'Almacenada' => 'Esterilizada',
-                        'En Uso' => 'Almacenada', 'Lavado' => 'En Uso'
+                        'Depósito Estéril' => 'Esterilizada',
+                        'Almacenada' => 'Depósito Estéril',
+                        'En Uso' => 'Almacenada', 
+                        'Esterilizada' => 'En Uso',
                     ];
-                    $siguienteEstado = $flujo_normal[$caja->estado_actual] ?? 'Lavado';
-                    $estadoAnterior = $flujo_inverso[$caja->estado_actual] ?? 'Lavado';
+                    $siguienteEstado = $flujo_normal[$caja->estado_actual] ?? 'Deposito esteril';
+                    $estadoAnterior = $flujo_inverso[$caja->estado_actual] ?? 'Deposito esteril';
                 @endphp
 
                 <div class="relative flex flex-col items-center min-w-[100px] ml-4">

@@ -6,17 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-   public function up()
-{
+    /**
+     * Run the migrations.
+     */
+    public function up()
+    {
     Schema::table('caja_quirurgicas', function (Blueprint $table) {
-        $table->text('descripcion')->nullable()->after('nombre');
+        // Agregamos el campo después del nombre
+        $table->string('tipo_esterilizacion')->nullable()->after('nombre');
     });
-}
+    }
 
-public function down()
-{
+    public function down()
+    {
     Schema::table('caja_quirurgicas', function (Blueprint $table) {
-        $table->dropColumn('descripcion');
+        $table->dropColumn('tipo_esterilizacion');
     });
-}
+    }
 };
