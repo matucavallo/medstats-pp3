@@ -238,6 +238,7 @@ class TrazabilidadController extends Controller
         $totalCajas = \App\Models\CajaQuirurgica::count();
         $cajasAlmacenadas = \App\Models\CajaQuirurgica::where('estado_actual', 'Almacenada')->count();
         $cajasEnUso = \App\Models\CajaQuirurgica::where('estado_actual', 'En Uso')->count();
+        $cajasLavado = \App\Models\CajaQuirurgica::where('estado_actual', 'Lavado')->count();
         $cajasEnDesuso = \App\Models\CajaQuirurgica::where('estado_actual', 'En Desuso')->count();
         $cajasEsterilizadas = \App\Models\CajaQuirurgica::where('estado_actual', 'Esterilizada')->count();
 
@@ -253,6 +254,7 @@ class TrazabilidadController extends Controller
             'totalCajas', 
             'cajasAlmacenadas', 
             'cajasEnUso', 
+            'cajasLavado', 
             'cajasEnDesuso',
             'cajasEsterilizadas',
             'historial'
