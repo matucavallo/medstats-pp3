@@ -9,16 +9,23 @@
                 </h2>
                 <p class="text-gray-500 mt-1">Resumen y métricas clave del quirófano</p>
             </div>
-            <a href="{{ route('stocks.estadisticasstock') }}" 
-               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
-                <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
-                <span class="font-medium">Estadísticas de Stock</span>
-            </a>
-             <a href="{{ route('trazabilidad.estadisticas') }}" 
-               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
-                <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
-                <span class="font-medium">Estadísticas de Esterilización</span>
-            </a>
+
+            
+           <div class="d-flex align-items-center gap-2">
+        <a href="{{ route('stocks.estadisticasstock') }}" 
+           class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
+            <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
+            <span class="font-medium">Estadísticas de Stock</span>
+        </a>
+        
+        <a href="{{ route('trazabilidad.estadisticas') }}" 
+           class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
+            <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
+            <span class="font-medium">Estadísticas de Esterilización</span>
+        </a>
+    </div>
+
+
         </div>
 
         {{-- Filtros --}}
