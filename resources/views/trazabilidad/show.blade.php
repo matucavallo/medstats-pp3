@@ -116,31 +116,34 @@
                     $estadoAnterior = $flujo_inverso[$caja->estado_actual] ?? 'Deposito esteril';
                 @endphp
 
-                <div class="relative flex flex-col items-center min-w-[100px] ml-4">
-                    
-                    <div class="absolute -top-20 flex gap-2 items-center">
+                <!-- ACÁ AGREGAMOS EL IF PARA OCULTAR LOS BOTONES SI ESTÁ EN DESUSO -->
+                @if(!$caja->trashed())
+                    <div class="relative flex flex-col items-center min-w-[100px] ml-4">
                         
-                        <form action="{{ route('trazabilidad.estado', $caja->id) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="accion" value="retroceder">
-                            <button type="submit" class="p-2 bg-red-50 rounded-lg border border-red-200 shadow-sm hover:shadow hover:bg-red-100 hover:border-red-300 transition-all group flex items-center justify-center cursor-pointer" title="Deshacer a {{ $estadoAnterior }}">
-                                <i data-lucide="rotate-ccw" class="w-5 h-5 text-red-500 group-hover:-rotate-45 transition-transform"></i>
-                            </button>
-                        </form>
+                        <div class="absolute -top-20 flex gap-2 items-center">
+                            
+                            <form action="{{ route('trazabilidad.estado', $caja->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="accion" value="retroceder">
+                                <button type="submit" class="p-2 bg-red-50 rounded-lg border border-red-200 shadow-sm hover:shadow hover:bg-red-100 hover:border-red-300 transition-all group flex items-center justify-center cursor-pointer" title="Deshacer a {{ $estadoAnterior }}">
+                                    <i data-lucide="rotate-ccw" class="w-5 h-5 text-red-500 group-hover:-rotate-45 transition-transform"></i>
+                                </button>
+                            </form>
 
-                        <form action="{{ route('trazabilidad.estado', $caja->id) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="accion" value="avanzar">
-                            <button type="submit" class="p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm hover:shadow hover:bg-blue-100 hover:border-blue-300 transition-all group flex items-center justify-center cursor-pointer" title="Avanzar a {{ $siguienteEstado }}">
-                                <i data-lucide="plus" class="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform"></i>
-                            </button>
-                        </form>
-                    </div>
+                            <form action="{{ route('trazabilidad.estado', $caja->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="accion" value="avanzar">
+                                <button type="submit" class="p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm hover:shadow hover:bg-blue-100 hover:border-blue-300 transition-all group flex items-center justify-center cursor-pointer" title="Avanzar a {{ $siguienteEstado }}">
+                                    <i data-lucide="plus" class="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform"></i>
+                                </button>
+                            </form>
+                        </div>
 
-                    <div class="mt-10 text-center w-full">
-                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acción Manual</h4>
+                        <div class="mt-10 text-center w-full">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acción Manual</h4>
+                        </div>
                     </div>
-                </div>
+                @endif <!-- CIERRE DEL NUEVO IF -->
             @endif
 
         </div>

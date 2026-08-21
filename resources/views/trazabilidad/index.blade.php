@@ -87,7 +87,12 @@
                     if($caja->estado_actual == 'Deposito esteril') $colorBadge = 'bg-primary';
                 @endphp
                 <span class="badge {{ $colorBadge }} text-white p-2">
-                    {{ $caja->estado_actual }}
+                    <!-- ACÁ AGREGAMOS LA LÓGICA PARA EL PARÉNTESIS -->
+                    @if($caja->estado_actual == 'Esterilizada' && $caja->tipo_esterilizacion)
+                        Esterilizada ({{ $caja->tipo_esterilizacion }})
+                    @else
+                        {{ $caja->estado_actual }}
+                    @endif
                 </span>
             @endif
         </td>
@@ -130,10 +135,26 @@
                     @endif
                 </div>
             @else
-                <!-- ESTO ERA LO QUE FALTABA -->
-                <span class="text-muted font-weight-bold" style="font-size: 0.85rem;">
-                    <i data-lucide="lock" class="d-inline-block mr-1" style="width: 14px; height: 14px; margin-top: -2px;"></i> Archivada
-                </span>
+                <!-- NUEVOS BOTONES PARA CAJAS ARCHIVADAS (SIN ELIMINAR) -->
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    
+                    <!-- Botón Ver Contenido (Modal) -->
+                    <button type="button" class="btn btn-sm text-white d-flex align-items-center justify-content-center" style="background-color: #6c757d; border-color: #6c757d; height: 31px; padding: 0 10px;" data-toggle="modal" data-target="#modalContenido{{ $caja->id }}" title="Ver contenido">
+                        <i data-lucide="package" style="width: 16px; height: 16px; margin-right: 5px;"></i> Contenido
+                    </button>
+
+                    <!-- Botón Ver Línea de Tiempo -->
+                    <a href="{{ route('trazabilidad.show', $caja->id) }}" class="btn btn-sm text-white d-flex align-items-center" style="background-color: #17a2b8; border-color: #17a2b8; height: 31px;">
+                        Ver Línea de Tiempo
+                    </a>
+
+                    <!-- Botón de Editar (que ahora servirá para Restaurar) -->
+                    @if(auth()->check() && (auth()->user()->role == 1 || auth()->user()->role == 2))
+                        <a href="{{ route('trazabilidad.edit', $caja->id) }}" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center" title="Restaurar Caja" style="height: 31px; width: 32px; padding: 0;">
+                            <i data-lucide="pencil" style="width: 16px; height: 16px;"></i>
+                        </a>
+                    @endif
+                </div>
             @endif
         </td>
     </tr>
@@ -152,7 +173,7 @@
                     <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Cerrar" style="font-size: 1.5rem; border: none; background: transparent; cursor: pointer;">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                </div>
+                </div>  
                 <div class="modal-body text-start" style="color: #495057; background-color: #ffffff; padding: 20px;">
                 
                 <!-- NUEVO: Mostrar el Tipo de Esterilización -->

@@ -196,8 +196,8 @@ class TrazabilidadController extends Controller
             abort(403, 'Acceso denegado.');
         }
 
-        $caja = CajaQuirurgica::findOrFail($id);
-        return view('trazabilidad.edit', compact('caja'));
+        $caja = CajaQuirurgica::withTrashed()->findOrFail($id);
+            return view('trazabilidad.edit', compact('caja'));
     }
 
     // 2. Esta función recibe los datos nuevos y los guarda en la base de datos
@@ -209,7 +209,8 @@ class TrazabilidadController extends Controller
             abort(403, 'Acceso denegado.');
         }
 
-        $caja = CajaQuirurgica::findOrFail($id);
+        // 1. SOLUCIÓN AL 404: Buscamos la caja, incluyendo las que están "En Desuso"
+        $caja = CajaQuirurgica::withTrashed()->findOrFail($id);
 
         // Validamos que los datos sean correctos. 
         // OJO: En el código le decimos que ignore el código actual de ESTA caja para que no tire error de "código duplicado" al guardar.
@@ -220,7 +221,14 @@ class TrazabilidadController extends Controller
             'descripcion' => 'nullable|string'
         ]);
 
-        // Actualizamos los datos
+        // 2. LA RESTAURACIÓN: Si la caja estaba eliminada lógicamente, la revivimos
+        if ($caja->trashed()) {
+            $caja->restore(); // Le saca la fecha de eliminación (deleted_at)
+            $caja->estado_actual = 'Almacenada'; // Le damos un estado inicial para que vuelva al ruedo
+            $caja->save();
+        }
+
+        // Actualizamos los datos del formulario
         $caja->update([
             'codigo' => $request->codigo,
             'nombre' => $request->nombre,
@@ -231,20 +239,25 @@ class TrazabilidadController extends Controller
         return redirect()->route('trazabilidad.index')->with('success', 'Caja actualizada correctamente.');
     }
 
-   public function estadisticas()
+    public function estadisticas()
     {
         // 1. MÉTRICAS PARA LAS TARJETAS SUPERIORES
-        // Contamos las cajas según su estado actual en la tabla principal
         $totalCajas = \App\Models\CajaQuirurgica::count();
         $cajasAlmacenadas = \App\Models\CajaQuirurgica::where('estado_actual', 'Almacenada')->count();
         $cajasEnUso = \App\Models\CajaQuirurgica::where('estado_actual', 'En Uso')->count();
-        $cajasLavado = \App\Models\CajaQuirurgica::where('estado_actual', 'Lavado')->count();
         $cajasEnDesuso = \App\Models\CajaQuirurgica::where('estado_actual', 'En Desuso')->count();
-        $cajasEsterilizadas = \App\Models\CajaQuirurgica::where('estado_actual', 'Esterilizada')->count();
+        
+        // Nuevos estados recomendados por el hospital
+        $cajasDeposito = \App\Models\CajaQuirurgica::where('estado_actual', 'Depósito Estéril')->count();
+        
+        // Esterilizadas divididas por método
+        $cajasEsterilizadasAuto = \App\Models\CajaQuirurgica::where('estado_actual', 'Esterilizada')
+                                        ->where('tipo_esterilizacion', 'Autoclave')->count();
+                                        
+        $cajasEsterilizadasOxido = \App\Models\CajaQuirurgica::where('estado_actual', 'Esterilizada')
+                                        ->where('tipo_esterilizacion', 'Óxido de Etileno')->count();
 
         // 2. DATOS PARA LA TABLA DEL HISTORIAL
-        // Traemos todos los registros de la tabla historial_cajas ordenados del más nuevo al más viejo
-        // Usamos 'with' para traer los datos de la caja y del empleado asociado de una sola vez
         $historial = \App\Models\HistorialCaja::with(['cajaQuirurgica', 'empleado'])
                         ->orderBy('created_at', 'desc')
                         ->get();
@@ -254,9 +267,10 @@ class TrazabilidadController extends Controller
             'totalCajas', 
             'cajasAlmacenadas', 
             'cajasEnUso', 
-            'cajasLavado', 
             'cajasEnDesuso',
-            'cajasEsterilizadas',
+            'cajasDeposito',
+            'cajasEsterilizadasAuto',
+            'cajasEsterilizadasOxido',
             'historial'
         ));
     }
