@@ -10,16 +10,18 @@
                 </h2>
                 <p class="text-gray-500 mt-1">Control de inventario y consumo de insumos</p>
             </div>
-            <a href="{{ route('cirugias.estadisticas') }}" 
-               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
-                <i class="bi bi-activity me-2 text-[#1B7D8F]"></i> 
-                <span class="font-medium">Estadísticas de Cirugías</span>
-            </a>
-             <a href="{{ route('trazabilidad.estadisticas') }}" 
-               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
-                <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
-                <span class="font-medium">Estadísticas de Esterilización</span>
-            </a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('cirugias.estadisticas') }}" 
+                   class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
+                    <i class="bi bi-activity me-2 text-[#1B7D8F]"></i> 
+                    <span class="font-medium">Estadísticas de Cirugías</span>
+                </a>
+                <a href="#" 
+                   class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
+                    <i class="bi bi-droplet-half me-2 text-[#1B7D8F]"></i> 
+                    <span class="font-medium">Estadísticas de Esterilización</span>
+                </a>
+            </div>
         </div>
 
         @if($vencimientos->isEmpty())
@@ -134,6 +136,186 @@
                 </div>
             </div>
         </div>
+
+        <div class="row g-4 mb-5">
+            {{-- Columna izquierda: Movimientos por mes --}}
+            <div class="col-lg-6" data-aos="fade-up" data-aos-duration="800">
+                <div class="card border-0 shadow-sm rounded-xl h-100 overflow-hidden">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h5 class="font-bold text-gray-800 mb-1">Movimientos por Mes</h5>
+                        <p class="text-sm text-gray-500 mb-0">Entradas y salidas en el período seleccionado</p>
+                    </div>
+                    <div class="card-body px-4">
+                        <div style="height: 250px;">
+                            <canvas id="movimientosPorMes"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Columna derecha: Top Empleados --}}
+            <div class="col-lg-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                <div class="card border-0 shadow-sm rounded-xl h-100">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h5 class="font-bold text-gray-800 mb-1">Top Empleados</h5>
+                        <p class="text-sm text-gray-500 mb-0">Mayor cantidad de insumos retirados</p>
+                    </div>
+                    <div class="card-body px-4">
+                        <div class="row align-items-center h-100">
+                            <div class="col-md-7">
+                                <div class="d-flex flex-column gap-3">
+                                    @foreach ($porEmpleado->take(5) as $index => $item)
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <span class="d-flex align-items-center justify-content-center w-6 h-6 rounded-full bg-gray-100 text-xs font-bold text-gray-500">
+                                                    {{ $index + 1 }}
+                                                </span>
+                                                <span class="text-sm font-medium text-gray-700">
+                                                    {{ optional($item->get_empleado)->apellido }}, {{ optional($item->get_empleado)->nombre }}
+                                                </span>
+                                            </div>
+                                            <span class="badge bg-blue-100 text-blue-700 rounded-pill px-3 py-1">
+                                                {{ $item->total }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                    @if ($porEmpleado->isEmpty())
+                                        <div class="text-center text-gray-400 text-sm py-3">Sin datos en el período.</div>
+                                    @endif
+                                </div>
+                                @if ($porEmpleado->count() > 5)
+                                    <button type="button" class="btn btn-link text-decoration-none text-[#1B7D8F] font-medium text-sm mt-3 ps-0"
+                                            data-bs-toggle="modal" data-bs-target="#modalEmpleados">
+                                        Ver listado completo <i class="bi bi-arrow-right ms-1"></i>
+                                    </button>
+                                @endif
+                            </div>
+                            <div class="col-md-5 d-flex justify-content-center">
+                                <div style="width: 200px; height: 200px;">
+                                    <canvas id="graficoEmpleados"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            {{-- Consumo por servicio --}}
+            <div class="col-md-6" data-aos="fade-up" data-aos-duration="800">
+                <div class="card border-0 shadow-sm rounded-xl h-100">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h5 class="font-bold text-gray-800 mb-1">Consumo por Servicio</h5>
+                        <p class="text-sm text-gray-500 mb-0">Servicios con mayor uso de insumos</p>
+                    </div>
+                    <div class="card-body px-4 d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                                @foreach ($servicioLabels as $index => $label)
+                                    <li class="d-flex justify-content-between align-items-center text-sm text-gray-700 border-b border-gray-50 pb-2">
+                                        <span>{{ $label }}</span>
+                                        <span class="font-bold text-gray-900">{{ $servicioValores[$index] }}</span>
+                                    </li>
+                                @endforeach
+                                @if ($servicioLabels->isEmpty())
+                                    <li class="text-center text-gray-400 text-sm py-3">Sin datos en el período.</li>
+                                @endif
+                            </ul>
+                        </div>
+                        <div class="ms-3">
+                            <div style="width: 140px; height: 140px;">
+                                <canvas id="graficoServicios"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Estado del stock por vencimiento --}}
+            <div class="col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                <div class="card border-0 shadow-sm rounded-xl h-100">
+                    <div class="card-header bg-white border-0 pt-4 px-4">
+                        <h5 class="font-bold text-gray-800 mb-1">Estado del Stock</h5>
+                        <p class="text-sm text-gray-500 mb-0">Según proximidad de vencimiento</p>
+                    </div>
+                    <div class="card-body px-4 d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                                <li class="d-flex justify-content-between align-items-center text-sm text-gray-700 border-b border-gray-50 pb-2">
+                                    <span>Vencidos</span>
+                                    <span class="font-bold text-gray-900">{{ $stockVencido }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between align-items-center text-sm text-gray-700 border-b border-gray-50 pb-2">
+                                    <span>Por vencer (60 días)</span>
+                                    <span class="font-bold text-gray-900">{{ $stockPorVencer }}</span>
+                                </li>
+                                <li class="d-flex justify-content-between align-items-center text-sm text-gray-700 border-b border-gray-50 pb-2">
+                                    <span>Vigentes</span>
+                                    <span class="font-bold text-gray-900">{{ $stockVigente }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="ms-3">
+                            <div style="width: 140px; height: 140px;">
+                                <canvas id="graficoEstadoStock"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Entradas vs Salidas --}}
+        <div class="card border-0 shadow-sm rounded-xl mb-5" data-aos="fade-up">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h5 class="font-bold text-gray-800 mb-1">Movimientos de Stock</h5>
+                <p class="text-sm text-gray-500 mb-0">Comparativa Entradas vs Salidas</p>
+            </div>
+            <div class="card-body px-4">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="p-3 rounded-xl bg-cyan-50 border border-cyan-100">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-cyan-700 font-medium">Entradas</span>
+                                    <span class="text-2xl font-bold text-cyan-700">{{ $totalAgregados }}</span>
+                                </div>
+                            </div>
+                            <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-emerald-700 font-medium">Salidas</span>
+                                    <span class="text-2xl font-bold text-emerald-700">{{ $totalExtraidos }}</span>
+                                </div>
+                            </div>
+                            <div class="text-center mt-2">
+                                <span class="text-sm text-gray-500">Tasa de Consumo</span>
+                                <div class="text-3xl font-bold text-gray-800">
+                                    @if ($totalAgregados + $totalExtraidos > 0)
+                                        {{ round(($totalExtraidos / ($totalAgregados + $totalExtraidos)) * 100, 1) }}%
+                                    @else
+                                        0%
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div style="height: 250px;">
+                            @if ($totalAgregados + $totalExtraidos > 0)
+                                <canvas id="graficoEntradasSalidas"></canvas>
+                            @else
+                                <div class="d-flex align-items-center justify-content-center h-100 bg-gray-50 rounded-xl text-gray-400">
+                                    Sin datos suficientes
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
         {{-- Gráfico de insumos más utilizados --}}
         <div class="card border-0 shadow-sm rounded-xl mb-5" data-aos="fade-up">
@@ -283,6 +465,49 @@
         </div>
     </div>
 
+</div> <!-- Este es el último div de tu contenido -->
+
+    {{-- INICIO DEL MODAL EMPLEADOS --}}
+    @push('modales')
+    <div class="modal fade" id="modalEmpleados" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-xl">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-gray-800">Listado de Empleados</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="text-xs text-gray-500 uppercase bg-gray-50">
+                                <tr>
+                                    <th class="border-0 rounded-start py-3">Empleado</th>
+                                    <th class="border-0 text-end rounded-end py-3">Insumos retirados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($porEmpleado as $item)
+                                    <tr>
+                                        <td class="border-gray-100 py-3">
+                                            <div class="font-medium text-gray-800">{{ optional($item->get_empleado)->apellido }}</div>
+                                            <div class="text-sm text-gray-500">{{ optional($item->get_empleado)->nombre }}</div>
+                                        </td>
+                                        <td class="border-gray-100 text-end py-3">
+                                            <span class="badge bg-blue-50 text-blue-700 rounded-pill px-3 py-2">{{ $item->total }}</span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endpush
+    {{-- FIN DEL MODAL EMPLEADOS --}}
+
+
 @endsection
 
 @push('scripts')
@@ -291,6 +516,27 @@
     document.addEventListener('DOMContentLoaded', function () {
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.color = '#64748b';
+
+               const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, padding: 20, boxWidth: 8 }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#1e293b',
+                    bodyColor: '#475569',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    boxPadding: 4
+                }
+            }
+        };
 
         const ctx = document.getElementById('graficoInsumos').getContext('2d');
         new Chart(ctx, {
@@ -333,6 +579,115 @@
                 }
             }
         });
+
+        // Movimientos por mes - Bar Chart doble (entradas/salidas)
+        new Chart(document.getElementById('movimientosPorMes'), {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($movPorMesLabels) !!},
+                datasets: [
+                    {
+                        label: 'Entradas',
+                        data: {!! json_encode($entradasPorMes) !!},
+                        backgroundColor: '#06b6d4',
+                        borderRadius: 6,
+                        barThickness: 18
+                    },
+                    {
+                        label: 'Salidas',
+                        data: {!! json_encode($salidasPorMes) !!},
+                        backgroundColor: '#1B7D8F',
+                        borderRadius: 6,
+                        barThickness: 18
+                    }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9', drawBorder: false },
+                        ticks: { padding: 10 }
+                    },
+                    x: {
+                        grid: { display: false, drawBorder: false }
+                    }
+                }
+            }
+        });
+
+        // Donut Charts Config
+        const donutColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+        const donutOptions = {
+            ...commonOptions,
+            cutout: '75%',
+            plugins: {
+                ...commonOptions.plugins,
+                legend: { display: false }
+            }
+        };
+
+        // Top empleados
+        new Chart(document.getElementById('graficoEmpleados'), {
+            type: 'doughnut',
+            data: {
+                labels: @json($empleadoLabels),
+                datasets: [{
+                    data: @json($empleadoValores),
+                    backgroundColor: donutColors,
+                    borderWidth: 0
+                }]
+            },
+            options: donutOptions
+        });
+
+        // Consumo por servicio
+        new Chart(document.getElementById('graficoServicios'), {
+            type: 'doughnut',
+            data: {
+                labels: @json($servicioLabels),
+                datasets: [{
+                    data: @json($servicioValores),
+                    backgroundColor: donutColors,
+                    borderWidth: 0
+                }]
+            },
+            options: donutOptions
+        });
+
+        // Estado del stock
+        new Chart(document.getElementById('graficoEstadoStock'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Vencidos', 'Por vencer', 'Vigentes'],
+                datasets: [{
+                    data: [{{ $stockVencido }}, {{ $stockPorVencer }}, {{ $stockVigente }}],
+                    backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
+                    borderWidth: 0
+                }]
+            },
+            options: donutOptions
+        });
+
+        // Entradas vs Salidas
+        @if ($totalAgregados + $totalExtraidos > 0)
+        new Chart(document.getElementById('graficoEntradasSalidas'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Entradas', 'Salidas'],
+                datasets: [{
+                    data: [{{ $totalAgregados }}, {{ $totalExtraidos }}],
+                    backgroundColor: ['#06b6d4', '#10b981'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                ...commonOptions,
+                cutout: '60%'
+            }
+        });
+        @endif
     });
 
     $(document).ready(function () {

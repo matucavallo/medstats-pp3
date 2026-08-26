@@ -256,132 +256,200 @@ public function actualizarSeguimiento(Request $request, Stock $stock)
     return redirect()->route('stocks.seguimiento', $stock)
         ->with('success', 'Estado actualizado correctamente.');
 }
-    public function estadisticas(Request $request)
-{
-    $validated = $request->validate([
-        'desde' => 'nullable|date|before_or_equal:today',
-        'hasta' => 'nullable|date|after_or_equal:desde|before_or_equal:today',
-    ], [
-        'desde.date' => 'La fecha de inicio no tiene un formato válido.',
-        'desde.before_or_equal' => 'La fecha de inicio no puede ser futura.',
-        'hasta.date' => 'La fecha de fin no tiene un formato válido.',
-        'hasta.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
-        'hasta.before_or_equal' => 'La fecha de fin no puede ser futura.',
-    ]);
+   public function estadisticas(Request $request)
+    {
+        $validated = $request->validate([
+            'desde' => 'nullable|date|before_or_equal:today',
+            'hasta' => 'nullable|date|after_or_equal:desde|before_or_equal:today',
+        ], [
+            'desde.date' => 'La fecha de inicio no tiene un formato válido.',
+            'desde.before_or_equal' => 'La fecha de inicio no puede ser futura.',
+            'hasta.date' => 'La fecha de fin no tiene un formato válido.',
+            'hasta.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
+            'hasta.before_or_equal' => 'La fecha de fin no puede ser futura.',
+        ]);
 
-    // Fechas por defecto si no se envían
-    $desde = $validated['desde'] ?? now()->startOfMonth()->toDateString();
-    $hasta = $validated['hasta'] ?? now()->endOfMonth()->toDateString();
+        // Fechas por defecto si no se envían
+        $desde = $validated['desde'] ?? now()->startOfMonth()->toDateString();
+        $hasta = $validated['hasta'] ?? now()->endOfMonth()->toDateString();
 
-    // Umbral para "sin movimiento" (dias)
-    $umbralDias = max(1, intval($request->input('dias', 30)));
-    $fechaLimite = now()->subDays($umbralDias)->toDateString();
+        // Umbral para "sin movimiento" (dias)
+        $umbralDias = max(1, intval($request->input('dias', 30)));
+        $fechaLimite = now()->subDays($umbralDias)->toDateString();
 
-    // ---------- CÁLCULO DEL TOTAL DE INSUMOS AL CIERRE DE 'HASTA' ----------
-    // Estrategia: partimos del stock actual (cantidad_act) y restamos la suma de movimientos
-    // posteriores a la fecha 'hasta' (movimientos con fecha > hasta).
-    // Esto nos devuelve el stock que existía al final de la fecha 'hasta'.
-    //
-    // Nota: los registros de Historial_stock tienen 'cantidad' positiva para entradas y
-    // negativa para salidas; por eso sumamos directamente 'cantidad'.
+        // ---------- CÁLCULO DEL TOTAL DE INSUMOS AL CIERRE DE 'HASTA' ----------
+        $movimientosPosteriores = Historial_stock::select('stock_id', DB::raw('SUM(cantidad) as suma_posterior'))
+            ->where('fecha', '>', $hasta)
+            ->groupBy('stock_id')
+            ->get()
+            ->keyBy('stock_id');
 
-    // 1) Obtener suma de movimientos posteriores a 'hasta' por stock_id
-    $movimientosPosteriores = Historial_stock::select('stock_id', DB::raw('SUM(cantidad) as suma_posterior'))
-        ->where('fecha', '>', $hasta)
-        ->groupBy('stock_id')
-        ->get()
-        ->keyBy('stock_id');
+        $stocks = Stock::all();
+        $totalStockAlCierre = 0;
+        foreach ($stocks as $s) {
+            $sumaPosterior = $movimientosPosteriores->has($s->id) ? $movimientosPosteriores[$s->id]->suma_posterior : 0;
+            $stockAlCierre = $s->cantidad_act - $sumaPosterior;
+            $totalStockAlCierre += max(0, $stockAlCierre);
+        }
+        $totalStock = $totalStockAlCierre;
+        // -----------------------------------------------------------------------
 
-    // 2) Recuperar todos los stocks y aplicar la corrección por movimientos posteriores
-    $stocks = Stock::all(); // con cantidad_act actual
-    $totalStockAlCierre = 0;
-    foreach ($stocks as $s) {
-        $sumaPosterior = $movimientosPosteriores->has($s->id) ? $movimientosPosteriores[$s->id]->suma_posterior : 0;
-        // stock al cierre = actual - movimientos posteriores
-        $stockAlCierre = $s->cantidad_act - $sumaPosterior;
-        // seguridad: no permitir valores negativos en el total agregado
-        $totalStockAlCierre += max(0, $stockAlCierre);
+        // Totales por movimientos entre desde/hasta
+        $totalAgregados = Historial_stock::where('cantidad', '>', 0)
+            ->whereBetween('fecha', [$desde, $hasta])
+            ->sum('cantidad');
+
+        $totalExtraidos = Historial_stock::where('cantidad', '<', 0)
+            ->whereBetween('fecha', [$desde, $hasta])
+            ->sum(DB::raw('ABS(cantidad)'));
+
+        // Insumos más utilizados en el período
+        $insumos = Historial_stock::select('stock_id', DB::raw('SUM(ABS(cantidad)) as total'))
+            ->where('cantidad', '<', 0)
+            ->whereBetween('fecha', [$desde, $hasta])
+            ->groupBy('stock_id')
+            ->with('get_stock.get_medicamento')
+            ->orderByDesc('total')
+            ->take(5)
+            ->get();
+
+        $insumoLabels = $insumos->map(fn($item) =>
+            optional($item->get_stock->get_medicamento)->nombre ?? 'Sin nombre'
+        );
+
+        $insumoValores = $insumos->pluck('total');
+
+        // Vencimientos próximos (dentro de 60 días)
+        $vencimientos = Stock::whereNotNull('fecha_vencimiento')
+            ->whereBetween('fecha_vencimiento', [now(), now()->addDays(60)])
+            ->with('get_medicamento')
+            ->orderBy('fecha_vencimiento')
+            ->get();
+
+        // Insumos sin movimiento según umbralDias
+        $stocksSinMovimiento = Stock::whereDoesntHave('historial_stock', function ($query) use ($fechaLimite) {
+            $query->where('fecha', '>', $fechaLimite);
+        })->with('get_medicamento')->get();
+
+        // Proyección de duración de stock (últimos 30 días)
+        $periodoAnalisis = 30;
+        $fechaInicio = now()->subDays($periodoAnalisis)->toDateString();
+        $fechaFin = now()->toDateString();
+
+        $consumos = Historial_stock::join('stocks', 'historial_stocks.stock_id', '=', 'stocks.id')
+            ->select('stocks.medicamento_id', DB::raw('SUM(ABS(historial_stocks.cantidad)) as total_consumo'))
+            ->where('historial_stocks.cantidad', '<', 0)
+            ->whereBetween('historial_stocks.fecha', [$fechaInicio, $fechaFin])
+            ->groupBy('stocks.medicamento_id')
+            ->get()
+            ->keyBy('medicamento_id');
+
+        $proyecciones = Stock::with('get_medicamento')->get()->map(function ($stock) use ($consumos, $periodoAnalisis) {
+            $consumoTotal = $consumos[$stock->medicamento_id]->total_consumo ?? 0;
+            $consumoDiario = $consumoTotal / $periodoAnalisis;
+            $diasRestantes = $consumoDiario > 0 ? round($stock->cantidad_act / $consumoDiario) : null;
+
+            return [
+                'medicamento' => optional($stock->get_medicamento)->nombre,
+                'lote' => $stock->lote,
+                'cantidad_act' => $stock->cantidad_act,
+                'consumo_diario' => round($consumoDiario, 2),
+                'dias_restantes' => $diasRestantes,
+            ];
+        });
+
+        // ---------- NUEVO: Movimientos por mes ----------
+        $movPorMes = Historial_stock::select(
+                DB::raw('MONTH(fecha) as mes'),
+                DB::raw('SUM(CASE WHEN cantidad > 0 THEN cantidad ELSE 0 END) as entradas'),
+                DB::raw('SUM(CASE WHEN cantidad < 0 THEN ABS(cantidad) ELSE 0 END) as salidas')
+            )
+            ->whereBetween('fecha', [$desde, $hasta])
+            ->groupBy(DB::raw('MONTH(fecha)'))
+            ->orderBy(DB::raw('MONTH(fecha)'))
+            ->get();
+
+        $movPorMesLabels = $movPorMes->pluck('mes')->map(function ($m) {
+            return \Carbon\Carbon::create()->month($m)->translatedFormat('F');
+        });
+        $entradasPorMes = $movPorMes->pluck('entradas');
+        $salidasPorMes = $movPorMes->pluck('salidas');
+
+        // ---------- NUEVO: Top empleados que retiraron insumos ----------
+        $porEmpleado = Historial_stock::select('empleado_id', DB::raw('SUM(ABS(cantidad)) as total'))
+            ->where('cantidad', '<', 0)
+            ->whereBetween('fecha', [$desde, $hasta])
+            ->whereNotNull('empleado_id')
+            ->groupBy('empleado_id')
+            ->with('get_empleado')
+            ->get()
+            ->sortByDesc('total')
+            ->values();
+
+        $empleadoLabels = $porEmpleado->take(5)->map(function ($item) {
+            $e = $item->get_empleado;
+            return $e ? $e->nombre . ' ' . $e->apellido : 'Sin asignar';
+        })->values();
+
+        $empleadoValores = $porEmpleado->take(5)->pluck('total')->values();
+
+        // ---------- NUEVO: Consumo por servicio ----------
+        $porServicioRaw = Historial_stock::join('stocks', 'historial_stocks.stock_id', '=', 'stocks.id')
+            ->select('stocks.servicio_id', DB::raw('SUM(ABS(historial_stocks.cantidad)) as total'))
+            ->where('historial_stocks.cantidad', '<', 0)
+            ->whereBetween('historial_stocks.fecha', [$desde, $hasta])
+            ->groupBy('stocks.servicio_id')
+            ->get()
+            ->sortByDesc('total')
+            ->values();
+
+        $serviciosPorId = \App\Models\Servicio::whereIn('id', $porServicioRaw->pluck('servicio_id'))->get()->keyBy('id');
+
+        $servicioLabels = $porServicioRaw->take(5)->map(function ($item) use ($serviciosPorId) {
+            return optional($serviciosPorId->get($item->servicio_id))->nombre ?? 'Sin servicio';
+        })->values();
+
+        $servicioValores = $porServicioRaw->take(5)->pluck('total')->values();
+
+        // ---------- NUEVO: Estado del stock por vencimiento ----------
+        $hoy = now();
+        $stockVencido = Stock::whereNotNull('fecha_vencimiento')
+            ->where('fecha_vencimiento', '<', $hoy)
+            ->count();
+            
+        $stockPorVencer = Stock::whereNotNull('fecha_vencimiento')
+            ->whereBetween('fecha_vencimiento', [$hoy, $hoy->copy()->addDays(60)])
+            ->count();
+            
+        $stockVigente = Stock::where(function ($q) use ($hoy) {
+            $q->whereNull('fecha_vencimiento')
+              ->orWhere('fecha_vencimiento', '>', $hoy->copy()->addDays(60));
+        })->count();
+
+        return view('stocks.estadisticasstock', compact(
+            'totalStock',
+            'totalAgregados',
+            'totalExtraidos',
+            'insumoLabels',
+            'insumoValores',
+            'vencimientos',
+            'desde',
+            'hasta',
+            'stocksSinMovimiento',
+            'umbralDias',
+            'proyecciones',
+            'movPorMesLabels',
+            'entradasPorMes',
+            'salidasPorMes',
+            'porEmpleado',
+            'empleadoLabels',
+            'empleadoValores',
+            'servicioLabels',
+            'servicioValores',
+            'stockVencido',
+            'stockPorVencer',
+            'stockVigente'
+        ));
     }
-    $totalStock = $totalStockAlCierre;
-    // -----------------------------------------------------------------------
-
-    // Totales por movimientos entre desde/hasta (ya estaban)
-    $totalAgregados = Historial_stock::where('cantidad', '>', 0)
-        ->whereBetween('fecha', [$desde, $hasta])
-        ->sum('cantidad');
-
-    $totalExtraidos = Historial_stock::where('cantidad', '<', 0)
-        ->whereBetween('fecha', [$desde, $hasta])
-        ->sum(DB::raw('ABS(cantidad)'));
-
-    // Insumos más utilizados en el período
-    $insumos = Historial_stock::select('stock_id', DB::raw('SUM(ABS(cantidad)) as total'))
-        ->where('cantidad', '<', 0)
-        ->whereBetween('fecha', [$desde, $hasta])
-        ->groupBy('stock_id')
-        ->with('get_stock.get_medicamento')
-        ->orderByDesc('total')
-        ->take(5)
-        ->get();
-
-    $insumoLabels = $insumos->map(fn($item) =>
-        optional($item->get_stock->get_medicamento)->nombre ?? 'Sin nombre'
-    );
-
-    $insumoValores = $insumos->pluck('total');
-
-    // Vencimientos próximos (dentro de 60 días)
-    $vencimientos = Stock::whereNotNull('fecha_vencimiento')
-        ->whereBetween('fecha_vencimiento', [now(), now()->addDays(60)])
-        ->with('get_medicamento')
-        ->orderBy('fecha_vencimiento')
-        ->get();
-
-    // Insumos sin movimiento según umbralDias
-    $stocksSinMovimiento = Stock::whereDoesntHave('historial_stock', function ($query) use ($fechaLimite) {
-        $query->where('fecha', '>', $fechaLimite);
-    })->with('get_medicamento')->get();
-
-    // Proyección de duración de stock (últimos 30 días)
-    $periodoAnalisis = 30;
-    $fechaInicio = now()->subDays($periodoAnalisis)->toDateString();
-    $fechaFin = now()->toDateString();
-
-    $consumos = Historial_stock::join('stocks', 'historial_stocks.stock_id', '=', 'stocks.id')
-        ->select('stocks.medicamento_id', DB::raw('SUM(ABS(historial_stocks.cantidad)) as total_consumo'))
-        ->where('historial_stocks.cantidad', '<', 0)
-        ->whereBetween('historial_stocks.fecha', [$fechaInicio, $fechaFin])
-        ->groupBy('stocks.medicamento_id')
-        ->get()
-        ->keyBy('medicamento_id');
-
-    $proyecciones = Stock::with('get_medicamento')->get()->map(function ($stock) use ($consumos, $periodoAnalisis) {
-        $consumoTotal = $consumos[$stock->medicamento_id]->total_consumo ?? 0;
-        $consumoDiario = $consumoTotal / $periodoAnalisis;
-        $diasRestantes = $consumoDiario > 0 ? round($stock->cantidad_act / $consumoDiario) : null;
-
-        return [
-            'medicamento' => optional($stock->get_medicamento)->nombre,
-            'lote' => $stock->lote,
-            'cantidad_act' => $stock->cantidad_act,
-            'consumo_diario' => round($consumoDiario, 2),
-            'dias_restantes' => $diasRestantes,
-        ];
-    });
-
-    return view('stocks.estadisticasstock', compact(
-        'totalStock',
-        'totalAgregados',
-        'totalExtraidos',
-        'insumoLabels',
-        'insumoValores',
-        'vencimientos',
-        'desde',
-        'hasta',
-        'stocksSinMovimiento',
-        'umbralDias',
-        'proyecciones'
-    ));
-}
  
 }
