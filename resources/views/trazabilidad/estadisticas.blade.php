@@ -5,10 +5,29 @@
 @section('contenido')
 <div class="container mx-auto">
     <!-- Encabezado -->
-    <div class="mb-8">
-        <h2 class="text-3xl font-bold text-[#1B7D8F]">Estadísticas de Esterilización y Trazabilidad</h2>
-        <p class="text-gray-500 mt-1">Resumen del estado actual del instrumental quirúrgico</p>
+    <div class="d-flex justify-content-between align-items-center mb-8">
+ 
+         <div>
+                <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
+                    Estadísticas de Esterilización y Trazabilidad
+                </h2>
+                <p class="text-gray-500 mt-1">Resumen del estado actual del instrumental quirúrgico</p>
+         </div>
+        
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('cirugias.estadisticas') }}" 
+               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all" style="text-decoration: none;">
+                <i class="bi bi-activity me-2 text-[#1B7D8F]"></i> 
+                <span class="font-medium">Estadísticas de Cirugías</span>
+            </a>
+            <a href="{{ route('stocks.estadisticasstock') }}" 
+               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all" style="text-decoration: none;">
+                <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
+                <span class="font-medium">Estadísticas de Stock</span>
+            </a>
+        </div>
     </div>
+    
 
    <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

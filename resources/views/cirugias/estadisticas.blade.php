@@ -20,7 +20,7 @@
         
         <a href="{{ route('trazabilidad.estadisticas') }}" 
            class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
-            <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
+           <i class="bi bi-droplet-half me-2 text-[#1B7D8F]"></i>
             <span class="font-medium">Estadísticas de Esterilización</span>
         </a>
     </div>
