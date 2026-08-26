@@ -10,9 +10,8 @@
         <p class="text-gray-500 mt-1">Resumen del estado actual del instrumental quirúrgico</p>
     </div>
 
-    <!-- Tarjetas de Métricas -->
-   <!-- Tarjetas de Métricas (¡Ahora con grilla de 6 columnas!) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+   <!-- Tarjetas de Métricas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         
         <!-- Total -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-gray-600">
@@ -32,16 +31,22 @@
             <div class="text-3xl font-bold text-red-500">{{ $cajasEnUso }}</div>
         </div>
 
-        <!-- Lavado -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-blue-500">
-            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">En Lavado</div>
-            <div class="text-3xl font-bold text-blue-500">{{ $cajasLavado }}</div>
+        <!-- Depósito Estéril -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-purple-500">
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Depósito Estéril</div>
+            <div class="text-3xl font-bold text-purple-500">{{ $cajasDeposito }}</div>
         </div>
 
-        <!-- Esterilizadas (¡Acá está!) -->
+        <!-- Esterilizadas: Autoclave -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-green-500">
-            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Esterilizadas</div>
-            <div class="text-3xl font-bold text-green-500">{{ $cajasEsterilizadas }}</div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Esterilizada. (Autoclave)</div>
+            <div class="text-3xl font-bold text-green-500">{{ $cajasEsterilizadasAuto }}</div>
+        </div>
+
+        <!-- Esterilizadas: Óxido de Etileno -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-emerald-400">
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Esterilizada. (Óx. Etileno)</div>
+            <div class="text-3xl font-bold text-emerald-500">{{ $cajasEsterilizadasOxido }}</div>
         </div>
 
         <!-- En Desuso -->
@@ -81,17 +86,23 @@
                             <span class="text-xs text-gray-500">{{ $movimiento->cajaQuirurgica->nombre ?? 'Caja eliminada' }}</span>
                         </td>
                         
-                        <!-- Estado con colores dinámicos -->
+                       <!-- Estado con colores y métodos dinámicos -->
                         <td class="py-3 px-4 align-middle">
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full
-                                {{ $movimiento->estado_registrado == 'Lavado' ? 'bg-blue-100 text-blue-800' : '' }}
-                                {{ $movimiento->estado_registrado == 'Esterilizada' ? 'bg-green-100 text-green-800' : '' }}
-                                {{ $movimiento->estado_registrado == 'Almacenada' ? 'bg-[#e6f4f3] text-[#1B7D8F]' : '' }}
-                                {{ $movimiento->estado_registrado == 'En Uso' ? 'bg-red-100 text-red-800' : '' }}
-                                {{ $movimiento->estado_registrado == 'En Desuso' ? 'bg-orange-100 text-orange-800' : '' }}
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full
+                            {{ $movimiento->estado_registrado == 'Depósito Estéril' ? 'bg-purple-100 text-purple-800' : '' }}
+                            {{ $movimiento->estado_registrado == 'Almacenada' ? 'bg-[#e6f4f3] text-[#1B7D8F]' : '' }}
+                            {{ $movimiento->estado_registrado == 'En Uso' ? 'bg-red-100 text-red-800' : '' }}
+                            {{ $movimiento->estado_registrado == 'En Desuso' ? 'bg-orange-100 text-orange-800' : '' }}
+                            {{ $movimiento->estado_registrado == 'Esterilizada' && optional($movimiento->cajaQuirurgica)->tipo_esterilizacion == 'Autoclave' ? 'bg-green-100 text-green-800' : '' }}
+                            {{ $movimiento->estado_registrado == 'Esterilizada' && optional($movimiento->cajaQuirurgica)->tipo_esterilizacion == 'Óxido de Etileno' ? 'bg-emerald-100 text-emerald-800' : '' }}
+                            {{ $movimiento->estado_registrado == 'Esterilizada' && !optional($movimiento->cajaQuirurgica)->tipo_esterilizacion ? 'bg-green-100 text-green-800' : '' }}
                             ">
-                                {{ $movimiento->estado_registrado }}
-                            </span>
+                            @if($movimiento->estado_registrado == 'Esterilizada' && optional($movimiento->cajaQuirurgica)->tipo_esterilizacion)
+                                Esterilizada ({{ $movimiento->cajaQuirurgica->tipo_esterilizacion }})
+                            @else
+                            {{ $movimiento->estado_registrado }}
+                            @endif
+                        </span>
                         </td>
                         
                         <!-- Empleado (preparado por si usan el campo name o nombre) -->

@@ -50,7 +50,11 @@
 
                 <div class="text-end">
                     <a href="{{ route('trazabilidad.index') }}" class="btn btn-light border mr-2">Cancelar</a>
-                    <button type="submit" class="btn btn-primary text-white" style="background-color: #0d6efd;">Actualizar Caja</button>
+                    
+                    <!-- EL BOTÓN AHORA ES DINÁMICO -->
+                    <button type="submit" class="btn btn-primary text-white" style="background-color: #0d6efd;">
+                        {{ $caja->trashed() ? 'Restaurar Caja' : 'Actualizar Caja' }}
+                    </button>
                 </div>
             </form>
         </div>
