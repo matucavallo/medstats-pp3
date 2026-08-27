@@ -40,7 +40,7 @@
         <!-- Esterilizadas: Autoclave -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 border-l-4 border-l-green-500">
             <div class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Esterilizada. (Autoclave)</div>
-            <div class="text-3xl font-bold text-green-500">{{ $cajasEsterilizadasAuto }}</div>
+            <div class="text-3xl font-bold text-purple-500">{{ $cajasEsterilizadasAuto }}</div>
         </div>
 
         <!-- Esterilizadas: Óxido de Etileno -->
