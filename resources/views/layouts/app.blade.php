@@ -22,16 +22,20 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        #mainContent {
-            transform-origin: top left;
-            /* para que el scale se haga desde la esquina */
-        }
+    #mainContent {
+        transform-origin: top left;
+        /* para que el scale se haga desde la esquina */
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
     </style>
 
     <!-- Motor de navegación SPA (Turbo.js) -->
-    <script type="module">
-        import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
-    </script>
+        <script type="module">
+            import * as Turbo from 'https://cdn.jsdelivr.net/npm/@hotwired/turbo@8/dist/turbo.es2017-esm.js';
+        </script>
 
 </head>
 
