@@ -513,7 +513,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('turbo:load', function () {
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.color = '#64748b';
 
@@ -690,7 +690,7 @@
         @endif
     });
 
-    $(document).ready(function () {
+    document.addEventListener('turbo:load', function () {
         $('#tablaProyeccion').DataTable({
             dom: '<"d-flex justify-content-between align-items-center mb-3"Bf>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
             buttons: [

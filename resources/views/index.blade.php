@@ -32,34 +32,36 @@
             <!-- KPIs rápidos -->
             <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-w-7xl mx-auto">
                 
-                <!-- Pacientes activos -->
                 <div class="bg-white rounded-2xl p-6 flex items-center gap-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-                    <div class="p-3 bg-blue-50 rounded-xl">
-                        <img src="{{ asset('assets/img/pacientes.png') }}" alt="Pacientes" class="h-10 w-10 object-contain" />
+                    <div class="p-3 bg-amber-50 rounded-xl">
+                        <i data-lucide="loader" class="h-8 w-8 text-amber-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-500 mb-1">Pacientes en cama</p>
-                        <p class="text-3xl font-bold text-gray-800">{{ $pacientes }}</p>
-                    </div>
-                </div>
-
-                <!-- Camas ocupadas -->
-                <div class="bg-white rounded-2xl p-6 flex items-center gap-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-                    <div class="p-3 bg-teal-50 rounded-xl">
-                        <img src="{{ asset('assets/img/camas.png') }}" alt="Camas" class="h-10 w-10 object-contain" />
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 mb-1">Ocupación</p>
-                        <div class="flex items-baseline gap-2">
-                            <p class="text-3xl font-bold text-gray-800">{{ $porcentajeCamas }}%</p>
-                            <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $porcentajeCamas > 80 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }}">
-                                {{ $porcentajeCamas > 80 ? 'Alta' : 'Normal' }}
-                            </span>
+                        <p class="text-sm font-medium text-gray-500 mb-1">En Esterilización</p>
+                        <div class="flex items-baseline gap-4 mt-1">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-800">{{ $cajasAutoclave ?? 0 }}</span>
+                                <span class="text-xs text-gray-500 block">Autoclave</span>
+                            </div>
+                            <div class="w-px h-8 bg-gray-200"></div>
+                            <div>
+                                <span class="text-2xl font-bold text-gray-800">{{ $cajasOxido ?? 0 }}</span>
+                                <span class="text-xs text-gray-500 block">Óxido de Et.</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Cirugías realizadas -->
+                <div class="bg-white rounded-2xl p-6 flex items-center gap-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                    <div class="p-3 bg-emerald-50 rounded-xl">
+                        <i data-lucide="package-check" class="h-8 w-8 text-emerald-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Depósito Estéril</p>
+                        <p class="text-3xl font-bold text-gray-800">{{ $cajasDeposito ?? 0 }}</p>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-2xl p-6 flex items-center gap-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
                     <div class="p-3 bg-indigo-50 rounded-xl">
                         <img src="{{ asset('assets/img/cirugias.png') }}" alt="Cirugías" class="h-10 w-10 object-contain" />

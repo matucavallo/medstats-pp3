@@ -28,7 +28,13 @@
         }
     </style>
 
+    <!-- Motor de navegación SPA (Turbo.js) -->
+    <script type="module">
+        import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
+    </script>
+
 </head>
+
 
 <!--<body class="min-h-screen bg-gray-100">-->
 <body class="bg-[#e6f4f3] text-gray-900">
@@ -44,7 +50,7 @@
 
     <div class="max-w-full mx-auto">-->
 
-        <main id="mainContent" class="flex-1 pt-20 px-8 pb-20 transition-all duration-300 ease-in-out transform">
+        <main id="mainContent" class="flex-1 ml-20 pt-20 px-8 pb-20 transition-all duration-300 ease-in-out transform">
             <div class="max-w-full mx-auto">
 
 
@@ -125,7 +131,8 @@
 
     <!-- Script del botón menú -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        // Se reemplaza DOMContentLoaded por turbo:load
+        document.addEventListener("turbo:load", function() {
             const menuBtn = document.getElementById("menuBtn");
             const dropdownMenu = document.getElementById("dropdownMenu");
 
@@ -139,7 +146,7 @@
 
 
         <script>
-            window.addEventListener('load', ajustarPadding);
+            document.addEventListener('turbo:load', ajustarPadding);
             window.addEventListener('resize', ajustarPadding);
 
             function ajustarPadding() {
