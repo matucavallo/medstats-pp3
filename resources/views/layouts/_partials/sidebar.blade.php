@@ -265,16 +265,16 @@
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("turbo:load", function() {
         if (window.lucide) lucide.createIcons();
         
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleSidebar');
         const linkTexts = document.querySelectorAll('.link-text');
         const sidebarTitle = document.getElementById('sidebar-title');
-        const mainContent = document.getElementById('mainContent'); // Asegúrate de que este ID exista en tu layout
+        const mainContent = document.getElementById('mainContent'); 
 
-        // Función para aplicar estado visual
+        // Función original intacta para aplicar el estado visual
         function setSidebarState(expanded) {
             const footer = document.getElementById('footer');
             
@@ -329,19 +329,32 @@
             }
         }
 
-        // Inicialización: Por defecto COLAPSADO (false)
-        // Si quieres persistencia, descomenta las líneas de localStorage, pero invirtiendo la lógica para que default sea false
-        const storedState = localStorage.getItem('sidebar-expanded');
-        const isExpanded = storedState === 'true'; // Default false si es null
+        // --- NUEVA LÓGICA DE INICIALIZACIÓN ESTÁTICA ---
         
-        setSidebarState(isExpanded);
+        // 1. Apagamos transiciones temporalmente para el renderizado inicial
+        sidebar.classList.remove('transition-all', 'duration-300');
+        if(mainContent) mainContent.classList.remove('transition-all', 'duration-300');
 
-        toggleBtn.addEventListener('click', function() {
-            const isCurrentlyExpanded = sidebar.classList.contains('w-64');
-            const newState = !isCurrentlyExpanded;
-            
-            setSidebarState(newState);
-            localStorage.setItem('sidebar-expanded', newState);
-        });
+        // 2. Forzamos el estado COLAPSADO (cerrado) por defecto en cada recarga
+        setSidebarState(false);
+
+        // 3. Forzamos Reflow para evitar parpadeos visuales
+        void sidebar.offsetWidth; 
+
+        // 4. Encendemos las animaciones para que el botón manual funcione con fluidez
+        sidebar.classList.add('transition-all', 'duration-300');
+        if(mainContent) mainContent.classList.add('transition-all', 'duration-300');
+
+        // 5. Asignamos el evento al botón de las 3 líneas sin guardar en localStorage
+        if (toggleBtn) {
+            toggleBtn.onclick = function(event) {
+                // Detenemos cualquier otro evento fantasma o propagación
+                event.preventDefault(); 
+                
+                // Calculamos el estado actual y lo invertimos
+                const isCurrentlyExpanded = sidebar.classList.contains('w-64');
+                setSidebarState(!isCurrentlyExpanded);
+            };
+        }
     });
 </script>

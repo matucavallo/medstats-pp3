@@ -16,7 +16,7 @@
                     <i class="bi bi-activity me-2 text-[#1B7D8F]"></i> 
                     <span class="font-medium">Estadísticas de Cirugías</span>
                 </a>
-                <a href="#" 
+                <a href="{{ route('trazabilidad.estadisticas') }}" 
                    class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all">
                     <i class="bi bi-droplet-half me-2 text-[#1B7D8F]"></i> 
                     <span class="font-medium">Estadísticas de Esterilización</span>
@@ -513,7 +513,7 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('turbo:load', function () {
         Chart.defaults.font.family = "'Inter', sans-serif";
         Chart.defaults.color = '#64748b';
 
@@ -690,7 +690,7 @@
         @endif
     });
 
-    $(document).ready(function () {
+    document.addEventListener('turbo:load', function () {
         $('#tablaProyeccion').DataTable({
             dom: '<"d-flex justify-content-between align-items-center mb-3"Bf>rt<"d-flex justify-content-between align-items-center mt-3"ip>',
             buttons: [

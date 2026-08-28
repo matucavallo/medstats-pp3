@@ -69,15 +69,16 @@ class TrazabilidadController extends Controller
 
         
         $request->validate([
-            'codigo' => 'required|unique:caja_quirurgicas,codigo',
-            'nombre' => 'required|string|max:255',
+            'codigo' => 'required|max:10|unique:caja_quirurgicas,codigo',
+            'nombre' => 'required|string|max:50',
             'tipo_esterilizacion' => 'required|string|in:Autoclave,Óxido de Etileno',
-            'descripcion' => 'required|string'
+            'descripcion' => 'required|string '
         ], [
             'codigo.unique' => 'Ese código de caja ya existe en el sistema.',
             'codigo.required' => 'El código es obligatorio.',
             'nombre.required' => 'El nombre de la caja es obligatorio.',
-            
+            'codigo.max' => 'Limite de caracteres del código excedido.',
+            'nombre.max' => 'Limite de caracteres del nombre excedido.',
             'descripcion.required' => 'La descripcion de la caja es obligatoria.'
         ]);
 
@@ -215,10 +216,14 @@ class TrazabilidadController extends Controller
         // Validamos que los datos sean correctos. 
         // OJO: En el código le decimos que ignore el código actual de ESTA caja para que no tire error de "código duplicado" al guardar.
         $request->validate([
-            'codigo' => 'required|string|unique:caja_quirurgicas,codigo,' . $caja->id,
-            'nombre' => 'required|string|max:255',
+            'codigo' => 'required|string|max:10|unique:caja_quirurgicas,codigo,' . $caja->id,
+            'nombre' => 'required|string|max:50',
             'tipo_esterilizacion' => 'required|string|in:Autoclave,Óxido de Etileno',
             'descripcion' => 'nullable|string'
+        ], [
+            'codigo.unique' => 'Ese código de caja ya existe en el sistema.',
+            'codigo.required' => 'El código es obligatorio.',
+            'nombre.required' => 'El nombre de la caja es obligatorio.' 
         ]);
 
         // 2. LA RESTAURACIÓN: Si la caja estaba eliminada lógicamente, la revivimos

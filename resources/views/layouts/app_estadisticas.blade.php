@@ -65,7 +65,8 @@
 
     <div class="max-w-full mx-auto">-->
 
-        <main id="mainContent" class="flex-1 pt-20 px-8 pb-20 transition-all duration-300 ease-in-out transform">
+        <!-- Busca tu etiqueta main e inyecta el margen (ml-20) -->
+            <main id="mainContent" class="flex-1 ml-20 pt-20 px-8 pb-20 transition-all duration-300 ease-in-out transform">
             <div class="max-w-full mx-auto">
 
                 @yield('contenido')
