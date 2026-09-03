@@ -8,11 +8,26 @@
     <div class="d-flex justify-content-between align-items-center mb-8">
  
          <div>
-                <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-[#1B7D8F] via-[#2BA8A0] to-[#245360] text-transparent bg-clip-text drop-shadow-md">
                     Estadísticas de Esterilización y Trazabilidad
                 </h2>
-        <p class="text-gray-500 mt-1">Resumen del estado actual del instrumental quirúrgico</p>
+                <p class="text-gray-500 mt-1">Resumen del estado actual del instrumental quirúrgico</p>
+         </div>
+        
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('cirugias.estadisticas') }}" 
+               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all" style="text-decoration: none;">
+                <i class="bi bi-activity me-2 text-[#1B7D8F]"></i> 
+                <span class="font-medium">Estadísticas de Cirugías</span>
+            </a>
+            <a href="{{ route('stocks.estadisticasstock') }}" 
+               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all" style="text-decoration: none;">
+                <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
+                <span class="font-medium">Estadísticas de Stock</span>
+            </a>
+        </div>
     </div>
+    
 
         <div class="d-flex align-items-center gap-2">
             <a href="{{ route('cirugias.estadisticas') }}" 
@@ -151,7 +166,7 @@
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
             },
-            order: [[0, 'desc']], // Ordena desde el movimiento más reciente
+            order: [[0, 'desc']],
             pageLength: 10,
             dom: '<"flex justify-between items-center mb-4"lf>rt<"flex justify-between items-center mt-4"ip>',
         });

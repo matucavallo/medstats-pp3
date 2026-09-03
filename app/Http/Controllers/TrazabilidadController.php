@@ -9,36 +9,30 @@ class TrazabilidadController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        
         $filtroEstado = $request->input('estado', 'Todas');
-        $filtroNombre = $request->input('nombre_caja', 'Todas');
-
         
+        $filtroNombre = $request->input('nombre_caja', []);
+
         $nombresCajas = CajaQuirurgica::withTrashed()
                             ->select('nombre')
                             ->distinct()
                             ->orderBy('nombre')
                             ->pluck('nombre');
 
-        
         $query = CajaQuirurgica::query();
 
-        
         if ($filtroEstado == 'En Desuso') {
-            $query->onlyTrashed(); // Solo las borradas
+            $query->onlyTrashed();
         } elseif ($filtroEstado != 'Todas') {
-            $query->where('estado_actual', $filtroEstado); // Solo las del estado elegido
+            $query->where('estado_actual', $filtroEstado); 
         }
 
-        //  filtro de NOMBRE
-        if ($filtroNombre != 'Todas') {
-            $query->where('nombre', $filtroNombre);
+        if (!empty($filtroNombre)) {
+            $query->whereIn('nombre', $filtroNombre);
         }
 
-        
         $cajas = $query->get();
 
-       
         return view('trazabilidad.index', compact('cajas', 'filtroEstado', 'filtroNombre', 'nombresCajas'));
     }
     

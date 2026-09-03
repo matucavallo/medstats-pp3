@@ -14,19 +14,17 @@
     <div class="d-flex align-items-center" style="gap: 15px;">
         
         <div class="d-flex align-items-center">
-            <label class="font-weight-bold mr-2 mb-0" style="color: #245360;">Tipo de Caja:</label>
-            <select name="nombre_caja" onchange="this.form.submit()" class="form-select" style="border-radius: 5px; padding: 5px 30px 5px 10px; min-width: 180px;">
-                <option value="Todas" {{ (isset($filtroNombre) && $filtroNombre == 'Todas') ? 'selected' : '' }}>Todos los tipos</option>
-                
-                @if(isset($nombresCajas))
-                    @foreach($nombresCajas as $nombre)
-                        <option value="{{ $nombre }}" {{ (isset($filtroNombre) && $filtroNombre == $nombre) ? 'selected' : '' }}>
-                            {{ $nombre }}
-                        </option>
-                    @endforeach
-                @endif
-            </select>
-        </div>
+    <label class="font-weight-bold mr-2 mb-0" style="color: #245360;">Tipo de Caja:</label>
+    <select name="nombre_caja[]" id="filtro_tipo_caja" multiple class="form-select" style="display: none;">
+        @if(isset($nombresCajas))
+            @foreach($nombresCajas as $nombre)
+                <option value="{{ $nombre }}" {{ (isset($filtroNombre) && is_array($filtroNombre) && in_array($nombre, $filtroNombre)) ? 'selected' : '' }}>
+                    {{ $nombre }}
+                </option>
+            @endforeach
+        @endif
+     </select>
+    </div>
 
         <div class="d-flex align-items-center">
             <label class="font-weight-bold mr-2 mb-0" style="color: #245360;">Estado:</label>
@@ -68,7 +66,7 @@
             <tbody>
                 @foreach($cajas as $caja)
     <tr>
-        <td class="align-middle font-weight-bold">
+        <td class="align-middle font-weight-bold" style="overflow-wrap: anywhere; word-break: break-word; max-width: 150px;">
             {{ $caja->codigo }}
         </td>
 
@@ -167,7 +165,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content" style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
                 <div class="modal-header" style="background-color: #f8f9fa;">
-                    <h5 class="modal-title text-dark" id="modalLabel{{ $caja->id }}">                        
+                    <h5 class="modal-title text-dark" id="modalLabel{{ $caja->id }}" style="overflow-wrap: anywhere; word-break: break-word; min-width: 0; flex: 1;">                        
                         <strong>{{ $caja->codigo }}</strong> - {{ $caja->nombre }}
                     </h5>
                     <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Cerrar" style="font-size: 1.5rem; border: none; background: transparent; cursor: pointer;">
@@ -197,7 +195,7 @@
                 <div style="font-size: 0.95rem;">
                     <strong style="color: #245360;"><i data-lucide="list" class="d-inline-block mr-1" style="width: 18px; height: 18px; margin-top: -2px;"></i> Detalle del Contenido:</strong>
                 </div>
-                <div class="mt-2" style="white-space: pre-wrap; font-size: 0.95rem;">
+                <div class="mt-2" style="white-space: pre-wrap; font-size: 0.95rem; overflow-wrap: anywhere; word-break: break-word;">
                     {{ $caja->descripcion ? $caja->descripcion : 'No hay descripción cargada para esta caja.' }}
                 </div>
                 
@@ -243,4 +241,21 @@
         $('body').removeClass('modal-open').css('overflow', 'auto');     
     });
 </script> 
+
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#filtro_tipo_caja').select2({
+            placeholder: "Todos los tipos",
+            allowClear: true,
+            width: '250px',
+            closeOnSelect: false // <--- ¡Esta es la línea mágica! Evita que se cierre en cada clic.
+        }).on('select2:close', function() {
+            // El formulario se va a enviar recién cuando hagas clic afuera del menú para cerrarlo
+            $(this).closest('form').submit();
+        });
+    });
+</script>
+@endpush

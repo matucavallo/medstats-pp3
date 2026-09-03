@@ -5,7 +5,7 @@
         {{-- Header Section --}}
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="text-3xl font-bold text-gray-800 tracking-tight">
+                <h2 class="text-2xl font-bold bg-gradient-to-r from-[#1B7D8F] via-[#2BA8A0] to-[#245360] text-transparent bg-clip-text drop-shadow-md">
                     Estadísticas de Stock
                 </h2>
                 <p class="text-gray-500 mt-1">Control de inventario y consumo de insumos</p>
