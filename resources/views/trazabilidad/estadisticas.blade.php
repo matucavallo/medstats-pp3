@@ -29,6 +29,21 @@
     </div>
     
 
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('cirugias.estadisticas') }}" 
+               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all" style="text-decoration: none;">
+                <i class="bi bi-activity me-2 text-[#1B7D8F]"></i> 
+                <span class="font-medium">Estadísticas de Cirugías</span>
+            </a>
+            <a href="{{ route('stocks.estadisticasstock') }}" 
+               class="btn bg-white text-gray-700 shadow-sm hover:shadow-md border border-gray-200 d-flex align-items-center px-4 py-2 rounded-lg transition-all" style="text-decoration: none;">
+                <i class="bi bi-box-seam me-2 text-[#1B7D8F]"></i> 
+                <span class="font-medium">Estadísticas de Stock</span>
+            </a>
+        </div>
+    </div>
+    
+
    <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         

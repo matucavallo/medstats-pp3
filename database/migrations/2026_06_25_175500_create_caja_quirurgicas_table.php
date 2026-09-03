@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('caja_quirurgicas', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo')->unique(); // Ej: CAJ-001
-            $table->string('nombre'); // Ej: Caja de Cirugía General
+            $table->string('codigo', 50)->unique(); // Ej: CAJ-001
+            $table->string('nombre' , 50); // Ej: Caja de Cirugía General
             $table->string('estado_actual')->default('Almacenada'); // Esterilizada, En Uso, Lavado...
             $table->timestamps();
         });
