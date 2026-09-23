@@ -1,0 +1,1 @@
+<?php /**PATH F:\laragon\www\MedStats-con-trazabilidad\resources\views/components/boton-volver.blade.php ENDPATH**/ ?>

@@ -1,0 +1,192 @@
+<?php $__env->startSection('title', 'Mostrar Seguimiento'); ?>
+
+<?php $__env->startSection('contenido'); ?>
+<div class="container mx-auto p-4 max-w-6xl">
+    
+    <div class="mb-6">
+        <a href="<?php echo e(route('trazabilidad.index')); ?>" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors font-medium">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Volver al listado
+        </a>
+    </div>
+
+    <!-- Encabezado de la Caja -->
+   <div class="bg-white rounded-xl shadow-sm p-6 mb-12 border border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">
+                <i data-lucide="box" class="inline-block w-6 h-6 text-indigo-500 mr-2 -mt-1"></i>
+                <?php echo e($caja->nombre); ?> (<?php echo e($caja->codigo); ?>)
+            </h2>
+            <p class="text-gray-500 mt-1">Trazabilidad del ciclo de esterilización y uso.</p>
+        </div>
+
+        <?php if(auth()->check() && auth()->user()->role == 1): ?>
+            <div class="flex flex-col items-end gap-3">
+                <span class="px-4 py-2 rounded-lg font-bold text-sm bg-indigo-100 text-indigo-800 border border-indigo-200">
+                    Estado Actual: <?php echo e($caja->estado_actual); ?>
+
+                 </span>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Contenedor Horizontal de Trazabilidad -->
+    <div class="w-full overflow-x-auto pb-12">
+        <div class="flex items-center min-w-[900px] px-8 pt-28">
+            
+            <!-- CAMBIO 1: Ahora traemos los últimos 5 movimientos -->
+            <?php $__currentLoopData = $caja->historiales->take(-4); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $movimiento): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                
+                <div class="relative flex flex-col items-center flex-1">
+                    
+                    <div class="absolute -top-24 flex flex-col items-center">
+                        <div class="p-4 bg-white rounded-2xl border-2 border-gray-100 shadow-md">
+                            <?php if($movimiento->estado_registrado == 'Depósito Estéril'): ?>
+                                <i data-lucide="layers" class="w-12 h-12 text-indigo-600"></i>
+                            
+                            <?php elseif($movimiento->estado_registrado == 'Esterilizada'): ?>
+                                <i data-lucide="shield-check" class="w-12 h-12 text-emerald-600"></i>
+                            
+                                
+                            <?php elseif($movimiento->estado_registrado == 'Almacenada'): ?>
+                                <i data-lucide="archive" class="w-12 h-12 text-slate-500"></i>
+                            
+                            <?php elseif($movimiento->estado_registrado == 'En Uso'): ?>
+                                <i data-lucide="scissors" class="w-12 h-12 text-rose-500"></i>
+                            
+                            <?php else: ?>
+                                <i data-lucide="box" class="w-12 h-12 text-gray-400"></i>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="w-10 h-10 bg-[#0d7f8c] border-4 border-white ring-4 ring-[#eef5f6] rounded-full flex items-center justify-center z-10">
+                    </div>
+
+                    <div class="mt-8 text-center w-36">
+                        <h4 class="text-base font-bold text-gray-800"><?php echo e($movimiento->estado_registrado); ?></h4>
+                        
+                        <!-- CAMBIO 3: Si es Esterilizada, mostramos el método abajo del título -->
+                        <?php if($movimiento->estado_registrado == 'Esterilizada'): ?>
+                            <p class="text-xs font-bold text-[#0d7f8c] mb-1">
+                                (<?php echo e($caja->tipo_esterilizacion ?? 'No especificado'); ?>)
+                            </p>
+                        <?php endif; ?>
+
+                        <p class="text-sm text-gray-500 mt-1"><?php echo e($movimiento->created_at->format('d/m/Y')); ?></p>
+                        <p class="text-xs font-semibold text-gray-700 mt-1">
+                        <i data-lucide="user" class="inline-block w-3 h-3 mr-1 -mt-0.5 opacity-70"></i>
+                         <?php echo e($movimiento->empleado->name ?? 'Sistema'); ?>
+
+                        </p>
+                        <p class="text-sm text-gray-500"><?php echo e($movimiento->created_at->format('H:i')); ?></p>
+                        
+                        <?php if($movimiento->empleado): ?>
+                            <p class="text-sm font-medium text-gray-700 mt-2 truncate" title="<?php echo e($movimiento->empleado->nombre); ?>">
+                                <?php echo e($movimiento->empleado->nombre); ?>
+
+                            </p>
+                        <?php endif; ?>
+
+                        <?php if($movimiento->cirugia_id): ?>
+                            <p class="text-xs text-red-600 font-bold mt-1">Cirugía #<?php echo e($movimiento->cirugia_id); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <?php if(!$loop->last): ?>
+                 <div class="flex-auto border-t-4 border-[#0d7f8c] opacity-80 -mt-24"></div>
+                <?php endif; ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+            <?php if(auth()->check() && auth()->user()->role == 1): ?>
+                <?php
+                    // CAMBIO 4: Actualizamos el "Cerebro" de los botones para el ciclo de 5 pasos
+                    $flujo_normal = [
+                        'Esterilizada' => 'Depósito Estéril',
+                        'Depósito Estéril' => 'Almacenada',
+                        'Almacenada' => 'En Uso', 
+                        'En Uso' => 'Esterilizada'
+                    ];
+                    $flujo_inverso = [
+                        'Depósito Estéril' => 'Esterilizada',
+                        'Almacenada' => 'Depósito Estéril',
+                        'En Uso' => 'Almacenada', 
+                        'Esterilizada' => 'En Uso',
+                    ];
+                    $siguienteEstado = $flujo_normal[$caja->estado_actual] ?? 'Deposito esteril';
+                    $estadoAnterior = $flujo_inverso[$caja->estado_actual] ?? 'Deposito esteril';
+                ?>
+
+                <!-- ACÁ AGREGAMOS EL IF PARA OCULTAR LOS BOTONES SI ESTÁ EN DESUSO -->
+                <?php if(!$caja->trashed()): ?>
+                    <div class="relative flex flex-col items-center min-w-[100px] ml-4">
+                        
+                        <div class="absolute -top-20 flex gap-2 items-center">
+                            
+                           
+                            <form action="<?php echo e(route('trazabilidad.estado', $caja->id)); ?>" method="POST" id="form-retroceder">
+                            <?php echo csrf_field(); ?>
+                                <input type="hidden" name="accion" value="retroceder">
+                           
+                                <button type="button" onclick="confirmarRetroceso('<?php echo e($estadoAnterior); ?>')" class="p-2 bg-red-50 rounded-lg border border-red-200 shadow-sm hover:shadow hover:bg-red-100 hover:border-red-300 transition-all group flex items-center justify-center cursor-pointer" title="Deshacer a <?php echo e($estadoAnterior); ?>">
+                                    <i data-lucide="rotate-ccw" class="w-5 h-5 text-red-500 group-hover:-rotate-45 transition-transform"></i>
+                                </button>
+                            </form>
+
+                            <form action="<?php echo e(route('trazabilidad.estado', $caja->id)); ?>" method="POST">
+                                <?php echo csrf_field(); ?>
+                                <input type="hidden" name="accion" value="avanzar">
+                                <button type="submit" class="p-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm hover:shadow hover:bg-blue-100 hover:border-blue-300 transition-all group flex items-center justify-center cursor-pointer" title="Avanzar a <?php echo e($siguienteEstado); ?>">
+                                    <i data-lucide="plus" class="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="mt-10 text-center w-full">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Acción Manual</h4>
+                        </div>
+                    </div>
+                <?php endif; ?> <!-- CIERRE DEL NUEVO IF -->
+            <?php endif; ?>
+
+        </div>
+    </div>
+</div>
+
+<!-- Importamos SweetAlert2 directo desde internet -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // Tu código original de los íconos
+    document.addEventListener("DOMContentLoaded", function() {
+        if(typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+
+    // NUESTRA NUEVA FUNCIÓN PARA EL CARTEL
+    function confirmarRetroceso(estadoAnterior) {
+        Swal.fire({
+            title: '¿Deshacer movimiento?',
+            text: `Estás a punto de retroceder la caja al estado: ${estadoAnterior}.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#cf1111',
+            cancelButtonColor: '#6b7280',  
+            confirmButtonText: 'Sí, retroceder',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true, 
+            customClass: {
+                popup: 'rounded-xl shadow-lg border border-gray-100'
+            }
+        }).then((result) => {
+        
+            if (result.isConfirmed) {
+                
+                document.getElementById('form-retroceder').submit();
+            }
+        });
+    }
+</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\MedStats-trazabilidad\resources\views/trazabilidad/show.blade.php ENDPATH**/ ?>
